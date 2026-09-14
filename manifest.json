@@ -1,0 +1,14 @@
+{
+  "name": "WOD Timer",
+  "short_name": "WOD Timer",
+  "description": "AMRAP, EMOM, Tabata, For Time and custom interval workout timer.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f4f6",
+  "theme_color": "#f3f4f6",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

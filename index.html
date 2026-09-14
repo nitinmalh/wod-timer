@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#f3f4f6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WOD Timer">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="icon.svg">
+<title>WOD Timer</title>
+<style>
+:root{
+  --bg:#0b0f14;--panel:#141a22;--panel2:#1c242e;--text:#f2f5f8;--muted:#8a97a6;--line:#ffffff10;--btn:#ffffff14;
+  --accent:#ff5a1f;--green:#2ecc71;--red:#ff3b3b;--blue:#3b82f6;--yellow:#f5b820;--purple:#a855f7;--teal:#14b8a6;
+  --radius:16px;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
+  --prep:#1b2230;--restbg:#062a17;--donebg:#1a0e2a;--stretchbg:#0a2326;
+}
+:root[data-theme="light"]{
+  --bg:#f3f4f6;--panel:#ffffff;--panel2:#eef0f3;--text:#111827;--muted:#5b6675;--line:#00000012;--btn:#00000010;
+  --prep:#e8ecf5;--restbg:#dcf5e6;--donebg:#efe4fb;--stretchbg:#dff3f2;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;-webkit-user-select:text;user-select:text}
+textarea{min-height:80px;resize:vertical}
+.screen{display:none;min-height:100%;padding:calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 16px)}
+.screen.active{display:flex;flex-direction:column}
+h1{font-size:22px;margin:8px 0 16px;letter-spacing:.5px}
+h2{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:18px 0 8px;display:flex;justify-content:space-between;align-items:center}
+h2 button{font-size:13px;color:var(--blue);letter-spacing:0;text-transform:none}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.top h1{margin:0;flex:1}
+.back{font-size:18px;padding:8px 10px 8px 0;color:var(--muted)}
+.link{color:var(--blue);font-size:15px;padding:8px}
+.card{background:var(--panel);border-radius:var(--radius);padding:6px 14px;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);gap:10px}
+.row:last-child{border-bottom:0}
+.row label{font-size:16px}
+.row small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.row.col{flex-direction:column;align-items:stretch}
+.stepper{display:flex;align-items:center;gap:4px;background:var(--panel2);border-radius:12px;padding:4px;flex-shrink:0}
+.stepper button{width:40px;height:40px;border-radius:9px;font-size:22px;background:var(--btn)}
+.stepper button:active{background:#8a97a655}
+.stepper .val{min-width:74px;text-align:center;font-variant-numeric:tabular-nums;font-size:18px;font-weight:600}
+.toggle{width:52px;height:30px;border-radius:15px;background:#8a97a655;position:relative;transition:.2s;flex-shrink:0}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on{background:var(--green)}.toggle.on::after{left:25px}
+.seg{display:flex;background:var(--panel2);border-radius:10px;padding:3px;flex-shrink:0}
+.seg button{padding:8px 12px;border-radius:8px;font-size:14px;color:var(--muted)}
+#stretchTime .seg button{padding:8px 9px}
+.seg button.on{background:var(--btn);color:var(--text)}
+.start{margin-top:auto;background:var(--accent);color:#fff;font-size:20px;font-weight:700;
+  padding:18px;border-radius:var(--radius);letter-spacing:1px;box-shadow:0 8px 24px #ff5a1f44}
+.start:active{transform:scale(.98)}
+.start.secondary{background:var(--panel2);color:var(--text);box-shadow:none;margin-top:0}
+.summary{color:var(--muted);font-size:14px;text-align:center;margin:6px 0 14px;line-height:1.4}
+.empty{color:var(--muted);font-size:14px;padding:8px 2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:9px 14px;border-radius:20px;background:var(--panel2);font-size:14px;border:1.5px solid transparent}
+.chip.on{border-color:var(--teal);background:#14b8a622}
+.pill{font-size:11px;padding:3px 8px;border-radius:10px;background:var(--btn);color:var(--muted);letter-spacing:.5px}
+
+/* Home */
+:root{--pill-amrap:#F5B25A;--pill-fortime:#6AA0F0;--pill-emom:#B98AE0;--pill-tabata:#6CC6AA;--pill-mix:#A9AAB0;--pill-text:#1c1f24;--tab:#ffffff;--tabline:#00000014}
+:root[data-theme="dark"]{--pill-amrap:#d99a45;--pill-fortime:#5a8ad6;--pill-emom:#9f74c9;--pill-tabata:#58ab92;--pill-mix:#8a8c93;--tab:#141a22;--tabline:#ffffff14}
+#home{padding-top:calc(var(--safe-t) + 10px);padding-bottom:calc(var(--safe-b) + 84px);height:100vh;height:100dvh;overflow:hidden}
+.hometop{display:flex;justify-content:flex-end;align-items:center;min-height:36px;margin-bottom:6px}
+.modes{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
+.mode{flex:1;min-height:72px;max-height:130px;border-radius:999px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--pill-text);padding:8px 64px;text-align:center;transition:transform .08s;border:0}
+.mode:active{transform:scale(.97)}
+.mode b{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-weight:700;font-size:clamp(26px,4.6vh,38px);letter-spacing:1px;text-transform:uppercase;line-height:1.05}
+.mode span{font-size:clamp(12px,1.9vh,15px);line-height:1.25;margin-top:3px;opacity:.9}
+.mode::after{content:"→";position:absolute;right:38px;top:50%;transform:translateY(-50%);font-size:24px;opacity:.7}
+.mode.amrap{background:var(--pill-amrap)}.mode.fortime{background:var(--pill-fortime)}.mode.emom{background:var(--pill-emom)}
+.mode.tabata{background:var(--pill-tabata)}.mode.mix{background:var(--pill-mix)}
+.homelinks{text-align:center;padding:14px 0 4px;flex-shrink:0}
+.cool{color:var(--blue);font-size:clamp(17px,2.4vh,20px);font-weight:600;display:inline-flex;align-items:center;gap:10px;padding:6px 10px}
+.small-links{margin-top:2px;font-size:13px;color:var(--muted)}
+.small-links button{color:var(--muted);padding:6px 8px;font-size:13px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;display:none;background:var(--tab);border-top:1px solid var(--tabline);padding:8px 0 calc(var(--safe-b) + 6px);z-index:5}
+.tabbar.show{display:flex}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--muted);padding:4px 0}
+.tabbar button svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button.on{color:var(--blue)}
+.with-tabs{padding-bottom:calc(var(--safe-b) + 90px)}
+.item{background:var(--panel);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;
+  display:flex;justify-content:space-between;align-items:center;font-size:14px;gap:10px;width:100%;text-align:left}
+.item .r{color:var(--muted);font-size:12px;line-height:1.35}
+.item .go{background:var(--accent);color:#fff;font-weight:700;padding:8px 14px;border-radius:10px;flex-shrink:0}
+.item .x{color:var(--muted);padding:6px 8px;font-size:18px}
+.pwa{background:#3b82f622;border:1px solid #3b82f655;border-radius:12px;padding:10px 12px;font-size:13px;margin-top:14px;color:var(--text);display:none}
+.gear{font-size:22px;padding:6px;color:var(--muted)}
+
+/* Mix builder */
+.block{background:var(--panel);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.block .tag{font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 8px;border-radius:8px;color:#fff;flex-shrink:0}
+.block .d{flex:1;font-size:14px}.block .d small{display:block;color:var(--muted);font-size:12px}
+.block .ctl button{padding:6px 8px;color:var(--muted);font-size:16px}
+.addrow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:4px 0 12px}
+.addrow button{background:var(--panel2);border-radius:10px;padding:10px 4px;font-size:12px;font-weight:700}
+
+/* Timer */
+#timer{padding:0}
+.tstage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:calc(var(--safe-t) + 16px) 16px calc(var(--safe-b) + 16px);transition:background .3s;position:relative;min-height:100vh;min-height:100dvh}
+.tstage.prep{background:var(--prep)}.tstage.work{background:var(--bg)}.tstage.rest{background:var(--restbg)}
+.tstage.done{background:var(--donebg)}.tstage.stretch{background:var(--stretchbg)}.tstage.paused .big{opacity:.5}
+.tstage.flash{animation:flash .5s}
+@keyframes flash{0%{background:#fff}100%{}}
+@media (prefers-reduced-motion:reduce){.tstage.flash{animation:none}}
+.phase{font-size:18px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:center}
+.tstage.rest .phase{color:var(--green)}.tstage.prep .phase{color:var(--yellow)}.tstage.stretch .phase{color:var(--teal)}
+.blockname{font-size:14px;color:var(--muted);letter-spacing:1px;margin-bottom:4px}
+.big{font-size:min(28vw,150px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin:14px 0;letter-spacing:-2px}
+.big.small{font-size:min(20vw,110px)}
+.sub{font-size:18px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+.rounds{font-size:34px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}
+.rounds small{font-size:16px;color:var(--muted);font-weight:500}
+.bar{position:absolute;left:0;top:0;height:6px;background:var(--accent);transition:width .25s linear}
+.tstage.rest .bar{background:var(--green)}.tstage.prep .bar{background:var(--yellow)}.tstage.stretch .bar{background:var(--teal)}
+.controls{display:flex;gap:12px;width:100%;max-width:480px;margin-top:28px}
+.controls button{flex:1;padding:16px;border-radius:14px;font-size:17px;font-weight:700;background:var(--btn)}
+.controls button.primary{background:var(--accent);color:#fff}
+.controls button.danger{background:#ff3b3b33;color:#ff6060}
+.reps{display:flex;gap:12px;align-items:center;margin-top:18px}
+.reps button{width:64px;height:64px;border-radius:50%;background:var(--btn);font-size:30px;font-weight:700}
+.reps .n{font-size:34px;font-weight:700;min-width:80px;text-align:center;font-variant-numeric:tabular-nums}
+.reps .lbl{font-size:12px;color:var(--muted);text-align:center}
+.total{position:absolute;top:calc(var(--safe-t) + 14px);right:16px;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.exit{position:absolute;top:calc(var(--safe-t) + 8px);left:10px;font-size:16px;color:var(--muted);padding:8px}
+.tvbtn{position:absolute;top:calc(var(--safe-t) + 40px);right:12px;font-size:18px;color:var(--muted);padding:8px}
+.sets{font-size:14px;color:var(--muted);margin-top:4px;letter-spacing:2px}
+.hint{font-size:13px;color:var(--muted);margin-top:22px}
+.stretchinfo{max-width:460px;text-align:center;font-size:15px;color:var(--muted);line-height:1.45;margin-top:6px}
+.stretchinfo b{color:var(--text);display:block;font-size:22px;margin-bottom:4px}
+.nextup{font-size:13px;color:var(--muted);margin-top:14px;letter-spacing:1px}
+.wodtext{position:absolute;bottom:calc(var(--safe-b) + 16px);left:16px;right:16px;color:var(--muted);font-size:14px;white-space:pre-wrap;text-align:left;max-height:30vh;overflow:auto;display:none}
+/* TV / landscape mode */
+.tstage.tv .big{font-size:min(38vw,44vh)}
+.tstage.tv .rounds{font-size:min(8vw,60px)}
+.tstage.tv .hint,.tstage.tv .reps{display:none}
+.tstage.tv .wodtext{display:block;font-size:min(3vw,20px);color:var(--text)}
+.tstage.tv .boxname{display:block}
+.boxname{display:none;position:absolute;top:calc(var(--safe-t) + 14px);left:50%;transform:translateX(-50%);font-size:16px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.tstage.tv .controls{position:absolute;bottom:calc(var(--safe-b) + 16px);right:16px;width:auto;max-width:none;margin:0;opacity:.6}
+.tstage.tv .controls button{padding:10px 16px;font-size:14px}
+.tstage.tv .wodtext{right:260px}
+@media (orientation:landscape){.tstage .big{font-size:min(28vh,150px)}}
+
+/* Done */
+.donebox{text-align:center}
+.donebox .big{font-size:60px}
+.stat{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:16px}
+.stat span:last-child{font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Log / calendar */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:13px}
+.cal .dh{color:var(--muted);font-size:11px;padding:4px 0}
+.cal .day{padding:8px 0;border-radius:8px;position:relative;font-variant-numeric:tabular-nums}
+.cal .day.has::after{content:"";position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.cal .day.sel{background:var(--accent);color:#fff}
+.cal .day.today{outline:1.5px solid var(--muted)}
+.calnav{display:flex;justify-content:space-between;align-items:center;padding:6px 0 10px;font-weight:700}
+.calnav button{padding:6px 12px;font-size:20px;color:var(--muted)}
+.logstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.logstats div{background:var(--panel);border-radius:12px;padding:10px;text-align:center}
+.logstats b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.logstats span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:24px;z-index:20}
+.modal.show{display:flex}
+.modal .box{background:var(--panel);border-radius:var(--radius);padding:20px;width:100%;max-width:360px}
+.modal p{margin:0 0 14px;font-size:17px;line-height:1.4}
+.modal input{margin-bottom:14px}
+.modal .btns{display:flex;gap:10px}
+.modal .btns button{flex:1;padding:14px;border-radius:12px;font-weight:700;background:var(--btn)}
+.modal .btns button.primary{background:var(--accent);color:#fff}
+.modal .btns button.danger{background:var(--red);color:#fff}
+.toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 24px);transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:9}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<section id="home" class="screen active">
+  <div class="hometop"><button class="gear" id="gearBtn" aria-label="Settings">⚙︎</button></div>
+  <div class="modes">
+    <button class="mode amrap" data-mode="amrap"><b>AMRAP</b><span>As many rounds as possible</span></button>
+    <button class="mode fortime" data-mode="fortime"><b>For Time</b><span>Finish the work. Beat the clock.</span></button>
+    <button class="mode emom" data-mode="emom"><b>EMOM</b><span>Every minute, on the minute</span></button>
+    <button class="mode tabata" data-mode="tabata"><b>Tabata</b><span>Work. Rest. Repeat.</span></button>
+    <button class="mode mix" data-mode="mix"><b>MIX</b><span>Build a workout with multiple formats</span></button>
+  </div>
+  <div class="homelinks">
+    <button class="cool" data-mode="stretch"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Cool-Down &amp; Stretch <span>→</span></button>
+    <div class="small-links"><button data-mode="stopwatch">Stopwatch</button>·<button data-mode="rest">Rest timer</button></div>
+  </div>
+</section>
+
+<!-- PRESETS -->
+<section id="presets" class="screen with-tabs">
+  <div class="top"><h1>Presets</h1></div>
+  <div class="summary">Save any setup with “Save preset” and start it here with one tap.</div>
+  <div id="presetList"></div>
+  <h2>Recent</h2>
+  <div id="recentList"><div class="empty">No workouts yet.</div></div>
+</section>
+
+<!-- SETUP (single block modes) -->
+<section id="setup" class="screen">
+  <div class="top"><button class="back" data-go="home">‹ Back</button><h1 id="setupTitle">Setup</h1><button class="link" id="savePresetBtn">Save preset</button></div>
+  <div class="summary" id="setupSummary"></div>
+  <div class="card" id="setupFields"></div>
+  <div class="card" id="setupExtras"></div>
+  <button class="start" id="startBtn">START</button>
+</section>
+
+<!-- MIX builder -->
+<section id="mix" class="screen">
+  <div class="top"><button class="back" data-go="home">‹ Back</button><h1>MIX</h1><button class="link" id="saveMixBtn">Save preset</button></div>
+  <div class="summary" id="mixSummary">Add blocks to build your flow.</div>
+  <div id="blockList"></div>
+  <div class="addrow">
+    <button data-add="amrap">+ AMRAP</button><button data-add="emom">+ EMOM</button><button data-add="tabata">+ TABATA</button><button data-add="fortime">+ FOR TIME</button><button data-add="rest">+ REST</button>
+  </div>
+  <div class="card">
+    <div class="row"><label>Repeat whole flow<small>Rounds of the full sequence</small></label>
+      <div class="stepper" data-key="repeat" data-min="1" data-max="20" data-step="1"><button>−</button><span class="val"></span><button>+</button></div></div>
+    <div class="row"><label>Rest between repeats</label>
+      <div class="stepper" data-key="repeatRest" data-min="0" data-max="600" data-step="10" data-unit="time"><button>−</button><span class="val"></span><button>+</button></div></div>
+    <div class="row"><label>Countdown before start</label>
+      <div class="stepper" data-key="prep" data-min="0" data-max="60" data-step="5"><button>−</button><span class="val"></span><button>+</button></div></div>
+  </div>
+  <button class="start" id="startMixBtn">START</button>
+</section>
+
+<!-- Block editor (modal-ish screen) -->
+<section id="blockedit" class="screen">
+  <div class="top"><button class="back" id="blockBack">‹ Done</button><h1 id="blockTitle">Block</h1><button class="link" id="blockDelete" style="color:var(--red)">Delete</button></div>
+  <div class="card" id="blockFields"></div>
+</section>
+
+<!-- Stretch setup -->
+<section id="stretchsetup" class="screen with-tabs">
+  <div class="top"><button class="back" data-go="home">‹ Back</button><h1>Cool-down</h1><button class="link" id="saveStretchBtn">Save preset</button></div>
+  <div class="summary">Pick what you trained. A stretch routine is built for exactly those muscles.</div>
+  <div class="card"><div class="row col"><label style="margin-bottom:8px">Muscles trained</label><div class="chips" id="muscleChips"></div></div></div>
+  <div class="card">
+    <div class="row"><label>Routine length</label><div class="seg" data-key="mode"><button data-v="time">By total time</button><button data-v="manual">Manual</button></div></div>
+    <div class="row" id="stretchTime"><label>Total time<small>Hold and transitions adjust automatically</small></label>
+      <div class="seg" data-key="total"><button data-v="300">5</button><button data-v="600">10</button><button data-v="900">15</button><button data-v="1200">20</button><button data-v="1500">25</button><button data-v="1800">30</button></div></div>
+    <div class="row" id="stretchHoldPref"><label>Hold length<small>Fewer, longer holds or more, shorter ones</small></label><div class="seg" data-key="holdPref"><button data-v="short">Short</button><button data-v="medium">Medium</button><button data-v="long">Long</button></div></div>
+    <div class="row"><label>Background music<small>Five soundscapes, a different one each session</small></label><button class="toggle" id="musicToggle"></button></div>
+  </div>
+  <div class="card" id="stretchManual">
+    <div class="row"><label>Hold each stretch</label>
+      <div class="stepper" data-key="hold" data-min="10" data-max="120" data-step="5" data-unit="time"><button>−</button><span class="val"></span><button>+</button></div></div>
+    <div class="row"><label>Transition between stretches</label>
+      <div class="stepper" data-key="gap" data-min="0" data-max="20" data-step="1" data-unit="time"><button>−</button><span class="val"></span><button>+</button></div></div>
+    <div class="row"><label>Stretches per muscle group</label>
+      <div class="stepper" data-key="per" data-min="1" data-max="3" data-step="1"><button>−</button><span class="val"></span><button>+</button></div></div>
+  </div>
+  <div class="summary" id="stretchSummary"></div>
+  <button class="start" id="startStretchBtn" style="background:var(--teal)">START COOL-DOWN</button>
+</section>
+
+<!-- TIMER -->
+<section id="timer" class="screen">
+  <div class="tstage prep" id="stage">
+    <div class="bar" id="bar" style="width:0%"></div>
+    <button class="exit" id="exitBtn">✕ Exit</button>
+    <div class="boxname" id="boxName"></div>
+    <div class="total" id="totalEl">00:00</div>
+    <button class="tvbtn" id="tvBtn" title="TV / landscape mode">⛶</button>
+    <div class="blockname" id="blockEl"></div>
+    <div class="phase" id="phaseEl">GET READY</div>
+    <div class="big" id="bigEl">10</div>
+    <div class="sub" id="subEl"></div>
+    <div class="rounds" id="roundEl"></div>
+    <div class="sets" id="setEl"></div>
+    <div class="stretchinfo" id="stretchEl" style="display:none"></div>
+    <div class="nextup" id="nextEl"></div>
+    <div class="reps" id="repsBox" style="display:none">
+      <button id="repMinus">−</button>
+      <div><div class="n" id="repN">0</div><div class="lbl" id="repLbl">ROUNDS</div></div>
+      <button id="repPlus">+</button>
+    </div>
+    <div class="controls">
+      <button id="pauseBtn" class="primary">PAUSE</button>
+      <button id="skipBtn">SKIP</button>
+      <button id="finishBtn" class="danger" style="display:none">FINISH</button>
+    </div>
+    <div class="hint">Tap the time to pause / resume</div>
+    <div class="wodtext" id="wodText"></div>
+  </div>
+</section>
+
+<!-- DONE -->
+<section id="done" class="screen">
+  <div class="top"><h1 id="doneTitle">Workout complete</h1></div>
+  <div class="card donebox"><div class="big" id="doneTime">00:00</div><div class="sub" id="doneMode"></div></div>
+  <div class="card" id="doneStats"></div>
+  <div class="card"><div class="row col"><label>Notes<small>Score, weights, how it felt</small></label><textarea id="doneNotes" placeholder="e.g. 7 rounds + 12 reps, 43 kg thrusters"></textarea></div></div>
+  <button class="start secondary" id="doneCooldown" style="margin-bottom:10px">COOL-DOWN STRETCH ›</button>
+  <button class="start" id="doneHome" style="margin-top:0">DONE</button>
+</section>
+
+<!-- LOG -->
+<section id="log" class="screen with-tabs">
+  <div class="top"><button class="back" data-go="home">‹ Back</button><h1>Workout log</h1><button class="link" id="exportBtn">Export CSV</button></div>
+  <div class="logstats"><div><b id="stWeek">0</b><span>this week</span></div><div><b id="stMonth">0</b><span>this month</span></div><div><b id="stTotal">0</b><span>all time</span></div></div>
+  <div class="card">
+    <div class="calnav"><button id="calPrev">‹</button><span id="calTitle"></span><button id="calNext">›</button></div>
+    <div class="cal" id="cal"></div>
+  </div>
+  <h2 id="logDayTitle">Workouts</h2>
+  <div id="logList"></div>
+</section>
+
+<!-- LOG ENTRY -->
+<section id="entry" class="screen">
+  <div class="top"><button class="back" id="entryBack">‹ Back</button><h1 id="entryTitle">Workout</h1><button class="link" id="entryDelete" style="color:var(--red)">Delete</button></div>
+  <div class="card" id="entryStats"></div>
+  <div class="card"><div class="row col"><label>Notes</label><textarea id="entryNotes"></textarea></div></div>
+  <button class="start secondary" id="entryRepeat">REPEAT THIS WORKOUT</button>
+</section>
+
+<!-- SETTINGS -->
+<section id="settings" class="screen">
+  <div class="top"><button class="back" data-go="home">‹ Back</button><h1>Settings</h1></div>
+  <h2>Timer</h2>
+  <div class="card">
+    <div class="row"><label>Countdown before start<small>Default get-ready time</small></label>
+      <div class="seg" data-set="prep"><button data-v="3">3s</button><button data-v="5">5s</button><button data-v="10">10s</button><button data-v="15">15s</button></div></div>
+    <div class="row"><label>Allow skipping rest<small>Shows the SKIP button during rest</small></label><button class="toggle" data-set="skipRest"></button></div>
+    <div class="row"><label>Round counter<small>Tap +/− to log rounds or laps</small></label><button class="toggle" data-set="counter"></button></div>
+    <div class="row"><label>Keep screen awake<small>Screen stays on while a timer runs. Timer, voice and beeps keep going if you lock it.</small></label><button class="toggle" data-set="wake"></button></div>
+    <div class="row"><label>Appearance<small>Light or dark contrast</small></label><div class="seg" data-set="theme"><button data-v="light">Light</button><button data-v="dark">Dark</button></div></div>
+  </div>
+  <h2>Sounds &amp; voice</h2>
+  <div class="card">
+    <div class="row"><label>Sound<small>Beeps on last 3 seconds and interval changes</small></label><button class="toggle" data-set="sound"></button></div>
+    <div class="row"><label>Beep style</label>
+      <div class="seg" data-set="beepStyle"><button data-v="classic">Classic</button><button data-v="soft">Soft</button><button data-v="horn">Horn</button></div></div>
+    <div class="row"><label>Volume</label>
+      <div class="stepper" data-set="volume" data-min="1" data-max="10" data-step="1"><button>−</button><span class="val"></span><button>+</button></div></div>
+    <div class="row"><label>Vibrate<small>Android and supported devices</small></label><button class="toggle" data-set="vibrate"></button></div>
+    <div class="row"><label>Voice announcements<small>"Work", "Rest", "Round 3", "Time"</small></label><button class="toggle" data-set="voice"></button></div>
+    <div class="row col"><label>Voice<small>iPhone only shows web apps a fixed list of voice names, but it plays the Enhanced or Premium version of any listed voice once downloaded. Go to iPhone Settings → Accessibility → Spoken Content → Voices → English and download <b>Samantha (Enhanced)</b>, Nicky (Enhanced) or Karen (Premium). Restart the app, then pick that name here. Android: install Google “natural” voices in Text-to-speech settings.</small></label><div id="voiceCount" style="font-size:12px;color:var(--muted);margin-top:6px"></div><div style="display:flex;gap:8px;margin-top:8px"><button class="link" id="voiceRefresh">Refresh</button><select id="voiceSel" style="flex:1;font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px"></select><button class="link" id="voiceTest">Test</button></div></div>
+    <div class="row"><label>Voice speed</label><div class="seg" data-set="voiceRate"><button data-v="slow">Slow</button><button data-v="normal">Normal</button><button data-v="fast">Fast</button></div></div>
+    <div class="row"><label>Voice: halfway</label><button class="toggle" data-set="voiceHalf"></button></div>
+    <div class="row"><label>Voice: one minute left</label><button class="toggle" data-set="voiceMin"></button></div>
+    <div class="row"><label>Voice: last 10 seconds</label><button class="toggle" data-set="voiceTen"></button></div>
+    <div class="row"><label>Voice: last round</label><button class="toggle" data-set="voiceLast"></button></div>
+    <div class="row"><label>Mid-workout reminder<small>Beep and announce elapsed time every…</small></label>
+      <div class="seg" data-set="reminder"><button data-v="0">Off</button><button data-v="60">1m</button><button data-v="300">5m</button><button data-v="600">10m</button></div></div>
+  </div>
+  <h2>Cool-down music</h2>
+  <div class="card">
+    <div class="row col"><label>Soundscape<small>Random picks a different one every session. Tap any to preview.</small></label>
+      <div class="chips" id="sceneChips" style="margin-top:8px"></div></div>
+    <div class="row"><label>Music volume</label>
+      <div class="stepper" data-set="musicVol" data-min="0" data-max="10" data-step="1"><button>−</button><span class="val"></span><button>+</button></div></div>
+  </div>
+  <h2>Box timer / TV display</h2>
+  <div class="card">
+    <div class="row col"><label>Box name<small>Shown at the top in TV mode</small></label><input id="setBox" placeholder="e.g. CrossFit Downtown"></div>
+    <div class="row col"><label>Coach name</label><input id="setCoach" placeholder="Coach"></div>
+    <div class="row col"><label>WOD text<small>Shown on screen in TV mode</small></label><textarea id="setWod" placeholder="21-15-9&#10;Thrusters 43/30 kg&#10;Pull-ups"></textarea></div>
+    <div class="row"><label>Auto TV mode in landscape</label><button class="toggle" data-set="autoTv"></button></div>
+    <div class="row"><label>Cast to TV<small>Use AirPlay screen mirroring or Chrome “Cast…” from the browser menu</small></label><span class="pill">System</span></div>
+  </div>
+  <h2>Data</h2>
+  <div class="card">
+    <div class="row"><label>Export log as CSV</label><button class="link" id="exportBtn2">Export</button></div>
+    <div class="row"><label>Backup everything<small>Presets, settings and log as one file</small></label><button class="link" id="backupBtn">Backup</button></div>
+    <div class="row"><label>Restore backup</label><button class="link" id="restoreBtn">Restore</button><input type="file" id="restoreFile" accept=".json" style="display:none"></div>
+    <div class="row"><label>Clear log</label><button class="link" id="clearHist" style="color:var(--red)">Clear</button></div>
+  </div>
+</section>
+
+<nav class="tabbar" id="tabbar">
+  <button data-tab="home"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6M12 2v3"/></svg>Timer</button>
+  <button data-tab="stretchsetup"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Stretch</button>
+  <button data-tab="presets"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Presets</button>
+  <button data-tab="log"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5M12 8v4l3 2"/></svg>Log</button>
+</nav>
+<div class="modal" id="modal"><div class="box"><p id="modalMsg"></p><input id="modalInput" style="display:none"><div class="btns"><button id="modalNo">Cancel</button><button id="modalYes" class="primary">OK</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= utilities & persistence ================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const pad=n=>String(n).padStart(2,'0');
+const fmt=s=>{s=Math.max(0,Math.round(s));return pad(Math.floor(s/60))+':'+pad(s%60);};
+const fmtLong=s=>s>=3600?Math.floor(s/3600)+':'+fmt(s%3600):fmt(s);
+const load=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}};
+const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
+const uid=()=>Math.random().toString(36).slice(2,10);
+function ask(msg,opts={}){return new Promise(res=>{const m=$('#modal'),inp=$('#modalInput'),yes=$('#modalYes'),no=$('#modalNo');
+  $('#modalMsg').textContent=msg;inp.style.display=opts.input?'':'none';inp.value=opts.value||'';yes.textContent=opts.ok||'OK';no.textContent=opts.cancel||'Cancel';
+  yes.className=opts.danger?'danger':'primary';m.classList.add('show');if(opts.input)setTimeout(()=>inp.focus(),50);
+  const done=v=>{m.classList.remove('show');yes.onclick=no.onclick=null;inp.onkeydown=null;res(v);};
+  yes.onclick=()=>done(opts.input?inp.value:true);no.onclick=()=>done(opts.input?null:false);inp.onkeydown=e=>{if(e.key==='Enter')yes.click();};
+  m.onclick=e=>{if(e.target===m)no.click();};});}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1800);}
+
+const NAMES={amrap:'AMRAP',fortime:'For Time',emom:'EMOM',tabata:'Tabata',mix:'MIX',stopwatch:'Stopwatch',rest:'Rest',stretch:'Cool-down'};
+const COLORS={amrap:'#ff5a1f',fortime:'#2ecc71',emom:'#3b82f6',tabata:'#f5b820',rest:'#6b7a8c',mix:'#a855f7',stretch:'#14b8a6',stopwatch:'#6b7a8c'};
+/* Block defaults. Every mode has rounds/sets with rest, matching the premium timer. */
+const DEF={
+  amrap:{minutes:20,rounds:1,roundRest:60},
+  fortime:{cap:20,rounds:1,roundRest:60},
+  emom:{interval:60,rounds:10,sets:1,setRest:60},
+  tabata:{work:20,rest:10,rounds:8,sets:1,setRest:60},
+  rest:{duration:120},
+  stopwatch:{},
+  stretch:{mode:'time',total:600,hold:30,gap:5,per:2,music:true,holdPref:'medium',groups:['quads','hamstrings','glutes','shoulders']},
+};
+const FIELDS={
+  amrap:[['minutes','Duration','minutes',1,120,1,'min'],['rounds','Rounds','repeat the AMRAP',1,20,1,''],['roundRest','Rest between rounds','',0,900,10,'time']],
+  fortime:[['cap','Time cap','minutes',1,180,1,'min'],['rounds','Rounds','repeat the piece',1,20,1,''],['roundRest','Rest between rounds','',0,900,10,'time']],
+  emom:[['interval','Every','interval length',10,900,10,'time'],['rounds','Rounds','intervals per set',1,90,1,''],['sets','Sets','',1,20,1,''],['setRest','Rest between sets','',0,900,10,'time']],
+  tabata:[['work','Work','',5,1800,5,'time'],['rest','Rest','',0,1800,5,'time'],['rounds','Rounds','per set',1,100,1,''],['sets','Sets','',1,20,1,''],['setRest','Rest between sets','',0,900,10,'time']],
+  rest:[['duration','Rest','',10,3600,10,'time']],
+  stopwatch:[],
+};
+let cfg=load('wod.cfg',{}); for(const k in DEF) cfg[k]=Object.assign({},DEF[k],cfg[k]||{});
+let settings=Object.assign({prep:10,skipRest:true,counter:true,wake:true,light:false,sound:true,beepStyle:'classic',volume:8,vibrate:true,
+  voice:true,voiceHalf:true,voiceMin:true,voiceTen:false,voiceLast:true,reminder:0,box:'',coach:'',wod:'',autoTv:true,theme:'light',voiceName:'',musicVol:6,musicScene:'random',holdPref:'medium',voiceRate:'normal'},load('wod.settings',{}));
+if(settings.theme!=='light'&&settings.theme!=='dark')settings.theme='light';
+let history=load('wod.history',[]);
+let presets=load('wod.presets',[]);
+let mixCfg=Object.assign({blocks:[],repeat:1,repeatRest:60,prep:10},load('wod.mix',{}));
+let prepOverride=load('wod.prep',{});
+function applyTheme(){const light=settings.theme==='light';document.documentElement.dataset.theme=light?'light':'dark';$('meta[name=theme-color]').content=light?'#f3f4f6':'#0b0f14';}
+applyTheme();
+
+/* ================= navigation ================= */
+let navStack=['home'];
+const TABS=['home','stretchsetup','presets','log'];
+function go(id){$$('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0);$('#tabbar').classList.toggle('show',TABS.includes(id));$$('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.tab===id));if(navStack[navStack.length-1]!==id)navStack.push(id);if(navStack.length>20)navStack.shift();if(id==='home')navStack=['home'];}
+$$('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+$('#gearBtn').onclick=()=>{renderSettings();go('settings');};
+$$('#tabbar button').forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(t==='stretchsetup')openStretch();else if(t==='log'){renderLog();go('log');}else if(t==='presets'){renderPresets();renderRecent();go('presets');}else go('home');});
+
+$$('[data-mode]').forEach(b=>b.onclick=()=>openMode(b.dataset.mode));
+function openMode(m){ if(m==='mix') openMix(); else if(m==='stretch') openStretch(); else openSetup(m); }
+
+/* ================= steppers / toggles / segs ================= */
+function showVal(v,unit){if(unit==='time')return fmt(v);if(unit==='min')return v+' min';return String(v);}
+function bindSteppers(root,get,set){
+  $$(root+' .stepper').forEach(st=>{
+    const key=st.dataset.key||st.dataset.set,min=+st.dataset.min,max=+st.dataset.max,step=+st.dataset.step,unit=st.dataset.unit||'';
+    const [minus,plus]=st.querySelectorAll('button');const val=st.querySelector('.val');
+    const paint=()=>val.textContent=showVal(get(key),unit);
+    let hold;
+    const change=d=>{set(key,Math.min(max,Math.max(min,(+get(key)||0)+d*step)));paint();};
+    const press=(btn,d)=>{
+      btn.onclick=()=>change(d);
+      btn.onpointerdown=e=>{e.preventDefault();hold=setTimeout(()=>{hold=setInterval(()=>change(d),90);},450);};
+      const stop=()=>{clearTimeout(hold);clearInterval(hold);};
+      btn.onpointerup=btn.onpointerleave=btn.onpointercancel=stop;
+    };
+    press(minus,-1);press(plus,1);paint();
+  });
+}
+function bindSegs(root,get,set){
+  $$(root+' .seg').forEach(sg=>{const key=sg.dataset.set||sg.dataset.key;
+    const paint=()=>sg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',String(get(key))===b.dataset.v));
+    sg.querySelectorAll('button').forEach(b=>b.onclick=()=>{set(key,isNaN(+b.dataset.v)?b.dataset.v:+b.dataset.v);paint();});paint();});
+}
+
+/* ================= single-mode setup ================= */
+let mode='amrap';
+function fieldRows(m,c){
+  return FIELDS[m].map(([key,label,sub,min,max,step,unit])=>`<div class="row"><label>${label}${sub?`<small>${sub}</small>`:''}</label>
+    <div class="stepper" data-key="${key}" data-min="${min}" data-max="${max}" data-step="${step}" data-unit="${unit}"><button>−</button><span class="val"></span><button>+</button></div></div>`).join('');
+}
+function openSetup(m){
+  mode=m;$('#setupTitle').textContent=NAMES[m];
+  const box=$('#setupFields');box.innerHTML=fieldRows(m,cfg[m]);box.style.display=FIELDS[m].length?'':'none';
+  if(prepOverride[m]==null)prepOverride[m]=settings.prep;
+  $('#setupExtras').innerHTML=`<div class="row"><label>Countdown before start<small>Get ready time</small></label>
+    <div class="stepper" data-key="__prep" data-min="0" data-max="60" data-step="5"><button>−</button><span class="val"></span><button>+</button></div></div>`;
+  bindSteppers('#setup',k=>k==='__prep'?prepOverride[m]:cfg[m][k],(k,v)=>{if(k==='__prep'){prepOverride[m]=v;save('wod.prep',prepOverride);}else{cfg[m][k]=v;save('wod.cfg',cfg);}updateSummary();});
+  updateSummary();go('setup');
+}
+function updateSummary(){$('#setupSummary').textContent=blockSummary({type:mode,...cfg[mode]},true);}
+$('#startBtn').onclick=()=>startWorkout(makeWorkout(mode));
+$('#savePresetBtn').onclick=()=>savePreset(makeWorkout(mode));
+function makeWorkout(m){ return {name:NAMES[m],mode:m,blocks:[{type:m,...cfg[m]}],repeat:1,repeatRest:0,prep:prepOverride[m]??settings.prep}; }
+
+/* block summary text */
+function blockDur(b){
+  switch(b.type){
+    case 'amrap':return b.minutes*60*b.rounds+(b.rounds-1)*b.roundRest;
+    case 'fortime':return b.cap*60*b.rounds+(b.rounds-1)*b.roundRest;
+    case 'emom':return b.interval*b.rounds*b.sets+(b.sets-1)*b.setRest;
+    case 'tabata':{const per=b.rounds*(b.work+b.rest)-b.rest;return per*b.sets+(b.sets-1)*b.setRest;}
+    case 'rest':return b.duration;
+    default:return 0;
+  }
+}
+function blockSummary(b,withTotal){
+  let s='';
+  switch(b.type){
+    case 'amrap':s=`${b.minutes} min AMRAP`+(b.rounds>1?` × ${b.rounds} rounds, ${fmt(b.roundRest)} rest`:'');break;
+    case 'fortime':s=`For Time, ${b.cap} min cap`+(b.rounds>1?` × ${b.rounds} rounds, ${fmt(b.roundRest)} rest`:'');break;
+    case 'emom':s=`Every ${fmt(b.interval)} × ${b.rounds}`+(b.sets>1?` × ${b.sets} sets, ${fmt(b.setRest)} rest`:'');break;
+    case 'tabata':s=`${b.rounds} × (${fmt(b.work)} on / ${fmt(b.rest)} off)`+(b.sets>1?` × ${b.sets} sets, ${fmt(b.setRest)} rest`:'');break;
+    case 'rest':s=`Rest ${fmt(b.duration)}`;break;
+    case 'stopwatch':s='Stopwatch, no cap';break;
+  }
+  if(withTotal&&b.type!=='stopwatch')s+=` · ${fmtLong(blockDur(b))} total`;
+  return s;
+}
+function workoutSummary(w){
+  if(w.mode==='stretch')return w.name;
+  const parts=w.blocks.map(b=>blockSummary(b,false));
+  let tot=w.blocks.reduce((a,b)=>a+blockDur(b),0);tot=tot*w.repeat+(w.repeat-1)*w.repeatRest;
+  return parts.join(' → ')+(w.repeat>1?` × ${w.repeat}`:'')+(w.mode!=='stopwatch'?` · ${fmtLong(tot)}`:'');
+}
+
+/* ================= MIX builder ================= */
+let editIdx=-1;
+function openMix(){renderBlocks();bindSteppers('#mix',k=>mixCfg[k],(k,v)=>{mixCfg[k]=v;save('wod.mix',mixCfg);renderBlocks();});go('mix');}
+function renderBlocks(){
+  const list=$('#blockList');
+  list.innerHTML=mixCfg.blocks.map((b,i)=>`<div class="block"><span class="tag" style="background:${COLORS[b.type]}">${NAMES[b.type].toUpperCase()}</span>
+    <button class="d" data-edit="${i}">${blockSummary(b,false)}<small>${fmtLong(blockDur(b))}</small></button>
+    <span class="ctl"><button data-up="${i}" ${i===0?'disabled':''}>▲</button><button data-down="${i}" ${i===mixCfg.blocks.length-1?'disabled':''}>▼</button></span></div>`).join('')
+    ||'<div class="empty">No blocks yet. Add one below.</div>';
+  list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openBlock(+b.dataset.edit));
+  list.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const i=+b.dataset.up;[mixCfg.blocks[i-1],mixCfg.blocks[i]]=[mixCfg.blocks[i],mixCfg.blocks[i-1]];save('wod.mix',mixCfg);renderBlocks();});
+  list.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>{const i=+b.dataset.down;[mixCfg.blocks[i+1],mixCfg.blocks[i]]=[mixCfg.blocks[i],mixCfg.blocks[i+1]];save('wod.mix',mixCfg);renderBlocks();});
+  $('#mixSummary').textContent=mixCfg.blocks.length?workoutSummary(mixWorkout()):'Add blocks to build your flow.';
+}
+$$('[data-add]').forEach(b=>b.onclick=()=>{mixCfg.blocks.push({type:b.dataset.add,...DEF[b.dataset.add]});save('wod.mix',mixCfg);renderBlocks();openBlock(mixCfg.blocks.length-1);});
+function openBlock(i){
+  editIdx=i;const b=mixCfg.blocks[i];$('#blockTitle').textContent=NAMES[b.type];
+  $('#blockFields').innerHTML=fieldRows(b.type,b);
+  bindSteppers('#blockedit',k=>b[k],(k,v)=>{b[k]=v;save('wod.mix',mixCfg);});go('blockedit');
+}
+$('#blockBack').onclick=()=>{renderBlocks();go('mix');};
+$('#blockDelete').onclick=()=>{mixCfg.blocks.splice(editIdx,1);save('wod.mix',mixCfg);renderBlocks();go('mix');};
+function mixWorkout(){return {name:'MIX',mode:'mix',blocks:mixCfg.blocks.map(b=>({...b})),repeat:mixCfg.repeat,repeatRest:mixCfg.repeatRest,prep:mixCfg.prep};}
+$('#startMixBtn').onclick=()=>{if(!mixCfg.blocks.length)return toast('Add at least one block');startWorkout(mixWorkout());};
+$('#saveMixBtn').onclick=()=>{if(!mixCfg.blocks.length)return toast('Add at least one block');savePreset(mixWorkout());};
+
+/* ================= presets ================= */
+async function savePreset(w){
+  const name=await ask('Preset name',{input:true,value:w.mode==='mix'?'My MIX':w.mode==='stretch'?'My cool-down':workoutSummary(w).split(' · ')[0],ok:'Save'});
+  if(name==null)return;
+  presets.unshift({id:uid(),name:name||NAMES[w.mode],w});save('wod.presets',presets);renderPresets();toast('Preset saved');
+}
+function renderPresets(){
+  const box=$('#presetList');
+  if(!presets.length){box.innerHTML='<div class="empty">Save any setup as a preset for one-tap start.</div>';return;}
+  box.innerHTML=presets.map(p=>`<div class="item"><div><b>${esc(p.name)}</b><div class="r">${esc(workoutSummary(p.w))}</div></div>
+    <button class="x" data-del="${p.id}">✕</button><button class="go" data-run="${p.id}">GO</button></div>`).join('');
+  box.querySelectorAll('[data-run]').forEach(b=>b.onclick=()=>{const p=presets.find(p=>p.id===b.dataset.run);startAny(JSON.parse(JSON.stringify(p.w)),p.name);});
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(await ask('Delete this preset?',{ok:'Delete',danger:true})){presets=presets.filter(p=>p.id!==b.dataset.del);save('wod.presets',presets);renderPresets();}});
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function startAny(w,name){ if(w.mode==='stretch') startStretch(w.stretch,name); else startWorkout(w,name); }
+
+/* ================= cool-down / stretch ================= */
+const MUSCLES={
+  quads:'Quads',hamstrings:'Hamstrings',glutes:'Glutes',hips:'Hip flexors',calves:'Calves',adductors:'Adductors',
+  back:'Lower back',lats:'Lats',chest:'Chest',shoulders:'Shoulders',triceps:'Triceps',forearms:'Forearms / grip',core:'Core',neck:'Neck / traps'
+};
+const STRETCHES={
+  quads:[
+    {n:'Standing quad stretch',i:'Stand tall, pull one heel to your glute, knees together, hips pushed forward.',sides:true},
+    {n:'Couch stretch',i:'Rear knee against a wall, shin vertical, front foot forward. Squeeze the glute and stay upright.',sides:true},
+    {n:'Kneeling quad lean',i:'Kneel, lean back with hands behind you and hips forward. Keep the chest open.'},
+    {n:'Side-lying quad stretch',i:'Lie on one side, grab the top ankle and draw the heel to the glute, knee pointing back.',sides:true},
+    {n:'Prone quad stretch',i:'Lie face down, reach back for one ankle, keep the hips pressed into the floor.',sides:true},
+    {n:'Hero pose',i:'Kneel with feet just outside the hips, sit between the heels, lean back onto the hands if comfortable.'},
+    {n:'Low lunge quad reach',i:'Deep lunge with the rear knee down, reach back and hold the rear foot.',sides:true},
+  ],
+  hamstrings:[
+    {n:'Forward fold',i:'Feet hip width, hinge at the hips, let the head hang. Soft knees, relax the neck.'},
+    {n:'Single-leg hamstring',i:'Heel on a box, leg straight, hinge forward with a flat back.',sides:true},
+    {n:'Lying hamstring pull',i:'On your back, pull one straight leg toward you with a band or hands.',sides:true},
+    {n:'Seated forward fold',i:'Legs straight out in front, reach for the toes with a long spine.'},
+    {n:'Half-split',i:'From a kneeling lunge, straighten the front leg, toes up, fold over it.',sides:true},
+    {n:'Wide-leg forward fold',i:'Feet wide, hinge and let the hands walk toward the floor.'},
+    {n:'Wall hamstring stretch',i:'Lie in a doorway, one leg up the wall, the other flat through the opening.',sides:true},
+    {n:'Standing crossed-leg fold',i:'Cross one foot over the other, fold forward and reach for the floor.',sides:true},
+  ],
+  glutes:[
+    {n:'Pigeon',i:'Front shin across the mat, rear leg long. Square the hips and fold forward.',sides:true},
+    {n:'Figure four',i:'On your back, ankle over the opposite knee, pull the thigh toward you.',sides:true},
+    {n:'Seated glute twist',i:'Sit, cross one foot over the other knee, hug the knee to the chest.',sides:true},
+    {n:'Seated figure four',i:'On a chair or box, ankle on the opposite knee, lean forward with a flat back.',sides:true},
+    {n:'Knee-to-chest hug',i:'Lying down, hug one knee to the chest and slightly across the body.',sides:true},
+    {n:'Reclined pigeon on wall',i:'Feet on the wall, cross one ankle over the other knee and push the knee away.',sides:true},
+    {n:'Cross-legged forward fold',i:'Sit cross-legged, walk the hands forward and breathe into the hips.'},
+  ],
+  hips:[
+    {n:'Half-kneeling hip flexor',i:'Rear knee down, tuck the pelvis, shift forward until you feel the front of the hip.',sides:true},
+    {n:'Deep squat hold',i:'Sink into a full squat, elbows push the knees out, chest up.'},
+    {n:'90/90 hips',i:'Sit with both knees at 90°, lean over the front shin, then switch.',sides:true},
+    {n:'Lizard pose',i:'Low lunge with both hands inside the front foot, sink the hips low.',sides:true},
+    {n:'Happy baby',i:'On your back, hold the outsides of the feet, knees toward the armpits.'},
+    {n:'Standing hip circles',i:'Hands on hips, slow big circles in one direction, then the other.'},
+    {n:'Kneeling hip flexor reach',i:'Half-kneeling, raise the same-side arm as the rear leg and lean gently away.',sides:true},
+    {n:'Crescent lunge',i:'High lunge, arms overhead, sink the hips forward and down.',sides:true},
+  ],
+  calves:[
+    {n:'Wall calf stretch',i:'Hands on the wall, rear leg straight, heel driven into the floor.',sides:true},
+    {n:'Bent-knee calf stretch',i:'Same position, bend the rear knee to reach the soleus.',sides:true},
+    {n:'Downward dog pedal',i:'In downward dog, pedal the heels alternately toward the floor.'},
+    {n:'Step calf drop',i:'Ball of the foot on a step, let the heel sink below the edge.',sides:true},
+    {n:'Seated calf pull',i:'Leg straight, loop a band around the ball of the foot and pull the toes toward you.',sides:true},
+    {n:'Ankle circles',i:'Lift one foot and draw slow circles with the toes, both directions.',sides:true},
+  ],
+  adductors:[
+    {n:'Frog stretch',i:'Knees wide on the floor, feet turned out, rock the hips back.'},
+    {n:'Side lunge',i:'Step wide, sit into one hip, keep the other leg straight.',sides:true},
+    {n:'Butterfly',i:'Soles together, knees drop toward the floor, lean forward gently.'},
+    {n:'Straddle fold',i:'Sit with the legs wide, walk the hands forward between them.'},
+    {n:'Cossack squat hold',i:'Wide stance, sink onto one heel, the other leg straight with toes up.',sides:true},
+    {n:'Wall straddle',i:'Lie with the hips against a wall, legs up, let them fall open.'},
+  ],
+  back:[
+    {n:"Child's pose",i:'Knees wide, arms long, sink the hips back and breathe into the back.'},
+    {n:'Cat-cow',i:'On all fours, alternate arching and rounding the spine with each breath.'},
+    {n:'Supine twist',i:'On your back, drop both knees to one side, arms out wide.',sides:true},
+    {n:'Knees to chest rock',i:'Hug both knees and gently rock side to side.'},
+    {n:'Seated spinal twist',i:'Sit tall, twist toward one side using the opposite hand on the knee.',sides:true},
+    {n:'Sphinx',i:'Lie face down, prop on the forearms, let the low back soften.'},
+    {n:'Standing forward hang',i:'Hold opposite elbows and hang, sway gently side to side.'},
+    {n:'Thread-the-needle twist',i:'On all fours, reach one arm under the body and rest the shoulder down.',sides:true},
+  ],
+  lats:[
+    {n:'Kneeling lat stretch',i:'Elbows on a box or bench, sink the chest toward the floor.'},
+    {n:'Side bend reach',i:'Reach one arm overhead and bend away, holding the wrist.',sides:true},
+    {n:'Bar hang',i:'Hang from a pull-up bar, relax the shoulders and let the spine lengthen.'},
+    {n:'Puppy pose',i:'From all fours, walk the hands forward, hips stay over the knees, chest to the floor.'},
+    {n:'Wall lat stretch',i:'Hands on the wall at hip height, step back and push the chest down.'},
+    {n:'Single-arm doorframe lat',i:'Grip a doorframe overhead with one hand, sit the hips back and away.',sides:true},
+  ],
+  chest:[
+    {n:'Doorway chest stretch',i:'Forearm on the door frame at shoulder height, step through.',sides:true},
+    {n:'Floor chest opener',i:'Lie face down, one arm out at 90°, roll the body away from it.',sides:true},
+    {n:'Clasped-hands chest stretch',i:'Clasp hands behind you, lift them and open the chest.'},
+    {n:'Wall pec stretch',i:'Palm on the wall behind you at shoulder height, turn the body away.',sides:true},
+    {n:'Foam roller chest opener',i:'Lie lengthwise on a roller or rolled towel, arms out in a T.'},
+    {n:'Reverse tabletop',i:'Sit, hands behind, lift the hips and let the chest open upward.'},
+  ],
+  shoulders:[
+    {n:'Cross-body shoulder stretch',i:'Pull one arm across the chest with the other forearm.',sides:true},
+    {n:'Thread the needle',i:'On all fours, slide one arm under the body, shoulder to the floor.',sides:true},
+    {n:'Wall slide angel',i:'Back to the wall, slide the arms overhead keeping contact.'},
+    {n:'Sleeper stretch',i:'Lie on one side, elbow at 90°, gently press the hand toward the floor.',sides:true},
+    {n:'Eagle arms',i:'Wrap one arm under the other, lift the elbows and reach forward.',sides:true},
+    {n:'Shoulder rolls',i:'Slow big circles backward, then forward, breathing with each roll.'},
+    {n:'Overhead reach hang',i:'Hands on a bar or ledge overhead, let the chest sink between the arms.'},
+  ],
+  triceps:[
+    {n:'Overhead triceps stretch',i:'Elbow overhead, hand down the spine, push the elbow gently.',sides:true},
+    {n:'Towel triceps stretch',i:'Hold a towel behind the back and pull down with the lower hand.',sides:true},
+    {n:'Wall triceps stretch',i:'Elbow high on the wall, lean the body in to deepen.',sides:true},
+    {n:'Cross-body triceps pull',i:'Arm across the body, press the elbow with the other hand.',sides:true},
+  ],
+  forearms:[
+    {n:'Wrist flexor stretch',i:'Arm straight, palm up, pull the fingers back toward you.',sides:true},
+    {n:'Wrist extensor stretch',i:'Arm straight, palm down, pull the fingers toward you.',sides:true},
+    {n:'Prayer stretch',i:'Palms together in front of the chest, lower the hands until you feel it.'},
+    {n:'Reverse prayer',i:'Backs of the hands together, raise the elbows gently.'},
+    {n:'Floor wrist stretch',i:'On all fours, fingers pointing back toward the knees, rock the weight back.'},
+    {n:'Finger spread and squeeze',i:'Open the hands wide, then make a fist. Slow and deliberate.'},
+  ],
+  core:[
+    {n:'Cobra',i:'Lie face down, press up through the hands, hips stay on the floor.'},
+    {n:'Standing side reach',i:'Reach up and over to one side, ribs open.',sides:true},
+    {n:'Kneeling back extension',i:'Kneel tall, hands on the low back, gently lean back.'},
+    {n:'Upward dog',i:'Press the chest forward and up, thighs off the floor, shoulders down.'},
+    {n:'Gate pose',i:'Kneel, extend one leg to the side, reach over it with the opposite arm.',sides:true},
+    {n:'Supine full-body reach',i:'Lie down, arms overhead, reach the fingers and toes in opposite directions.'},
+  ],
+  neck:[
+    {n:'Ear to shoulder',i:'Let the head fall toward one shoulder, opposite hand reaches down.',sides:true},
+    {n:'Chin tuck',i:'Draw the chin straight back, lengthening the back of the neck.'},
+    {n:'Trap stretch',i:'Turn the head 45° and look down toward the armpit, hand on the head.',sides:true},
+    {n:'Neck rotation hold',i:'Turn to look over one shoulder and hold, shoulders stay down.',sides:true},
+    {n:'Chin-to-chest stretch',i:'Interlace the hands behind the head and let its weight draw the chin down.'},
+    {n:'Shoulder shrug release',i:'Lift the shoulders to the ears, hold, then let them drop.'},
+  ],
+};
+function openStretch(){
+  const c=cfg.stretch;
+  $('#muscleChips').innerHTML=Object.entries(MUSCLES).map(([k,v])=>`<button class="chip ${c.groups.includes(k)?'on':''}" data-m="${k}">${v}</button>`).join('');
+  $$('#muscleChips .chip').forEach(b=>b.onclick=()=>{const k=b.dataset.m;c.groups=c.groups.includes(k)?c.groups.filter(x=>x!==k):[...c.groups,k];b.classList.toggle('on');save('wod.cfg',cfg);stretchSummary();});
+  bindSteppers('#stretchsetup',k=>c[k],(k,v)=>{c[k]=v;save('wod.cfg',cfg);stretchSummary();});
+  bindSegs('#stretchsetup',k=>c[k],(k,v)=>{c[k]=v;save('wod.cfg',cfg);stretchSummary();});
+  const mt=$('#musicToggle');mt.classList.toggle('on',!!c.music);mt.onclick=()=>{c.music=!c.music;mt.classList.toggle('on');save('wod.cfg',cfg);if(c.music){music.preview();}};
+  stretchSummary();go('stretchsetup');
+}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+function expand(st,g){const base={...st,group:MUSCLES[g]};return st.sides?[{...base,n:st.n+' (left)'},{...base,n:st.n+' (right)'}]:[base];}
+function stretchPlan(c){
+  const groups=Object.keys(MUSCLES).filter(g=>c.groups.includes(g));if(!groups.length)return {list:[],hold:c.hold,gap:c.gap};
+  if(c.mode!=='time'){const list=[];for(const g of groups)shuffle(STRETCHES[g]).slice(0,c.per).forEach(st=>list.push(...expand(st,g)));return {list,hold:c.hold,gap:c.gap};}
+  const T=c.total,gap=T>=900?8:5,mult={short:0.75,medium:1,long:1.45}[c.holdPref||settings.holdPref||'medium']||1,target=Math.min(120,Math.max(25,(25+T/40)*mult));
+  let n=Math.max(3,Math.round(T/(target+gap)));
+  const pools=Object.fromEntries(groups.map(g=>[g,shuffle(STRETCHES[g])]));const list=[];let gi=0,guard=0;
+  while(list.length<n&&guard++<500){const g=groups[gi++%groups.length];if(!pools[g].length)pools[g]=shuffle(STRETCHES[g]);list.push(...expand(pools[g].shift(),g));}
+  const hold=Math.min(150,Math.max(10,Math.floor((T-(list.length-1)*gap)/list.length)));
+  return {list,hold,gap};
+}
+function buildStretchList(c){return stretchPlan(c).list;}
+function stretchTotal(plan){return plan.list.length*plan.hold+Math.max(0,plan.list.length-1)*plan.gap;}
+function stretchSummary(){const c=cfg.stretch,pl=stretchPlan(c);$('#stretchManual').style.display=c.mode==='time'?'none':'';$('#stretchTime').style.display=c.mode==='time'?'':'none';$('#stretchHoldPref').style.display=c.mode==='time'?'':'none';
+  $('#stretchSummary').textContent=pl.list.length?`${pl.list.length} stretches · hold ${fmt(pl.hold)} · ${fmtLong(stretchTotal(pl))} total · picked at random from ${Object.values(STRETCHES).flat().length} stretches`:'Select at least one muscle group.';}
+$('#saveStretchBtn').onclick=()=>{if(!cfg.stretch.groups.length)return toast('Pick at least one muscle group');savePreset({name:'Cool-down',mode:'stretch',blocks:[],repeat:1,repeatRest:0,prep:5,stretch:{...cfg.stretch}});};
+$('#startStretchBtn').onclick=()=>{if(!cfg.stretch.groups.length)return toast('Pick at least one muscle group');startStretch({...cfg.stretch});};
+function startStretch(c,name){
+  const pl=stretchPlan(c),list=pl.list;if(!list.length)return;
+  const segs=[{kind:'prep',dur:5,label:'GET READY',stretch:{n:'Cool-down',i:`${list.length} stretches, ${fmt(pl.hold)} each. Breathe slow and stay relaxed.`}}];
+  list.forEach((s,i)=>{ segs.push({kind:'stretch',dur:pl.hold,label:'HOLD',stretch:s,round:i+1,rounds:list.length,next:list[i+1]});
+    if(pl.gap>0&&i<list.length-1)segs.push({kind:'rest',dur:pl.gap,label:'SWITCH',stretch:{n:'Next: '+list[i+1].n,i:list[i+1].i},next:list[i+1]}); });
+  if(c.music)music.start();else music.stop();
+  const w={name:name||'Cool-down',mode:'stretch',blocks:[],repeat:1,repeatRest:0,prep:5,stretch:c};
+  launch(w,segs);
+}
+
+/* ================= audio / haptics / voice ================= */
+let actx;
+function audio(){if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();}if(actx.state==='suspended')actx.resume();return actx;}
+function tone(freq,dur,type){
+  if(!settings.sound)return;
+  try{const a=audio(),o=a.createOscillator(),g=a.createGain();o.type=type||(settings.beepStyle==='soft'?'sine':settings.beepStyle==='horn'?'sawtooth':'square');
+    o.frequency.value=settings.beepStyle==='horn'?freq/2:freq;g.gain.value=0.0001;o.connect(g);g.connect(a.destination);
+    const v=settings.volume/10*0.5,t=a.currentTime;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.start(t);o.stop(t+dur+.02);}catch{}
+}
+const beep=(f,d)=>tone(f,d);
+function buzz(ms){if(settings.vibrate&&navigator.vibrate)try{navigator.vibrate(ms);}catch{}}
+let voices=[];function loadVoices(){try{voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));}catch{}}
+if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=()=>{loadVoices();if($('#settings').classList.contains('active'))renderVoiceList();};}
+const FEMALE=/samantha|ava|zoe|allison|susan|nicky|karen|moira|tessa|fiona|kate|serena|female|woman|aria|jenny|libby|sonia|natasha|emma|olivia|google uk english female|google us english|joanna|salli|kendra|kimberly|amy|joanna/i;
+function pickVoice(){
+  if(!voices.length)return null;
+  if(settings.voiceName){const v=voices.find(v=>v.name===settings.voiceName);if(v)return v;}
+  const score=v=>(/premium/i.test(v.name)?6:/enhanced|natural|neural/i.test(v.name)?4:0)+(FEMALE.test(v.name)?3:0)+(/en-US|en_US/i.test(v.lang)?1:0)+(v.localService?0.5:0)+(/siri/i.test(v.name)?2:0);
+  return voices.slice().sort((a,b)=>score(b)-score(a))[0];
+}
+function say(text,force){if(!(settings.voice||force)||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}u.rate={slow:0.85,normal:1.0,fast:1.15}[settings.voiceRate]||1.0;u.pitch=1.0;u.volume=settings.volume/10;speechSynthesis.speak(u);}catch{}}
+const cueTick=()=>{beep(660,.12);buzz(60);};
+const cueGo=()=>{beep(1320,settings.beepStyle==='horn'?.8:.35);buzz([120,60,120]);};
+const cueEnd=()=>{beep(1320,.2);setTimeout(()=>beep(1320,.2),250);setTimeout(()=>beep(1760,.6),500);buzz([200,100,200,100,400]);};
+
+/* ================= ambient music (synthesised, no files) ================= */
+const SCENES={piano:'Piano garden',bowls:'Singing bowls',ocean:'Ocean',rain:'Rainfall',strings:'Warm strings'};
+const music={g:null,timers:[],scene:null,
+  ctx(){return audio();},
+  rnd(a,b){return a+Math.random()*(b-a);},
+  pick(a){return a[Math.floor(Math.random()*a.length)];},
+  every(fn,minMs,maxMs){const loop=()=>{if(!this.g)return;fn();this.timers.push(setTimeout(loop,this.rnd(minMs,maxMs)));};this.timers.push(setTimeout(loop,this.rnd(300,1500)));},
+  noiseBuf(a,kind){const len=a.sampleRate*4,b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);let last=0,b0=0,b1=0,b2=0;
+    for(let i=0;i<len;i++){const w=Math.random()*2-1;if(kind==='brown'){last=(last+0.02*w)/1.02;d[i]=last*3.5;}else{b0=0.99765*b0+w*0.0990460;b1=0.96300*b1+w*0.2965164;b2=0.57000*b2+w*1.0526913;d[i]=(b0+b1+b2+w*0.1848)*0.11;}}return b;},
+  reverb(a,secs,decay){const len=a.sampleRate*secs,b=a.createBuffer(2,len,a.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay);}const cv=a.createConvolver();cv.buffer=b;return cv;},
+  build(){const a=this.ctx();const master=a.createGain();master.gain.value=0;master.connect(a.destination);
+    const dry=a.createGain();dry.gain.value=0.7;dry.connect(master);
+    const rv=this.reverb(a,4.5,2.6),wet=a.createGain();wet.gain.value=0.8;rv.connect(wet);wet.connect(master);
+    const dl=a.createDelay(2);dl.delayTime.value=0.52;const fb=a.createGain();fb.gain.value=0.38;const dlp=a.createBiquadFilter();dlp.type='lowpass';dlp.frequency.value=1800;dl.connect(dlp);dlp.connect(fb);fb.connect(dl);dlp.connect(rv);dlp.connect(dry);
+    const bus=a.createGain();bus.connect(dry);bus.connect(rv);const echo=a.createGain();echo.connect(bus);echo.connect(dl);
+    return {a,master,bus,echo};},
+  scale(){const roots=[130.81,146.83,164.81,174.61,196,220];const root=this.pick(roots);const pent=this.pick([[0,2,4,7,9],[0,3,5,7,10],[0,2,5,7,9]]);
+    const notes=[];for(let o=0;o<3;o++)pent.forEach(st=>notes.push(root*Math.pow(2,o+st/12)));return {root,notes,pent};},
+  tone(f,dest,{attack=0.02,decay=4,gain=0.2,partials=[[1,1],[2,0.35],[3,0.12]],type='sine',detune=0}={}){const a=this.ctx(),t=a.currentTime;const g=a.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+attack);g.gain.exponentialRampToValueAtTime(0.0001,t+attack+decay);g.connect(dest);
+    partials.forEach(([m,v])=>{const o=a.createOscillator();o.type=type;o.frequency.value=f*m;o.detune.value=detune;const pg=a.createGain();pg.gain.value=v;o.connect(pg);pg.connect(g);o.start(t);o.stop(t+attack+decay+0.1);});},
+  pad(dest,freqs,{gain=0.05,cutoff=500,type='triangle'}={}){const a=this.ctx();const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=cutoff;lp.Q.value=0.5;const g=a.createGain();g.gain.setValueAtTime(0.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(gain,a.currentTime+6);lp.connect(g);g.connect(dest);
+    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=this.rnd(0.03,0.08);lg.gain.value=cutoff*0.5;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();
+    const oscs=[];freqs.forEach(f=>[-6,5].forEach(d=>{const o=a.createOscillator();o.type=type;o.frequency.value=f;o.detune.value=d;o.connect(lp);o.start();oscs.push(o);}));this.g.stopList.push(...oscs,lfo);return {lp,g,oscs};},
+  noise(dest,kind,{gain=0.1,lo=0,hi=20000}={}){const a=this.ctx();const src=a.createBufferSource();src.buffer=this.noiseBuf(a,kind);src.loop=true;const hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=lo;const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=hi;const g=a.createGain();g.gain.setValueAtTime(0.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(gain,a.currentTime+5);src.connect(hp);hp.connect(lp);lp.connect(g);g.connect(dest);src.start();this.g.stopList.push(src);return {src,lp,hp,g};},
+  start(scene){if(this.g)return;try{
+    const g=this.build();g.stopList=[];this.g=g;const sc=this.scale();
+    scene=scene||settings.musicScene||'random';if(scene==='random'||!SCENES[scene])scene=this.pick(Object.keys(SCENES));this.scene=scene;
+    const {a,bus,echo,master}=g;const N=sc.notes;
+    if(scene==='piano'){
+      this.pad(bus,[sc.root/2,sc.root*Math.pow(2,sc.pent[3]/12)/2],{gain:0.035,cutoff:420});
+      this.every(()=>{const f=this.pick(N.slice(3));this.tone(f,echo,{decay:this.rnd(3,6),gain:this.rnd(0.10,0.18),partials:[[1,1],[2,0.3],[3,0.08],[4.01,0.04]]});
+        if(Math.random()<0.3)setTimeout(()=>this.tone(this.pick(N.slice(5)),echo,{decay:4,gain:0.09}),this.rnd(150,500));},1600,5200);
+    }else if(scene==='bowls'){
+      this.pad(bus,[sc.root/2],{gain:0.03,cutoff:300,type:'sine'});
+      this.every(()=>{const f=this.pick(N.slice(0,7));[[1,1,0],[2.71,0.28,3],[5.4,0.07,-4]].forEach(([m,v,d])=>this.tone(f,bus,{attack:0.4,decay:this.rnd(8,13),gain:0.16*v,partials:[[m,1]],detune:d}));
+        this.tone(f*1.004,bus,{attack:0.6,decay:9,gain:0.08});},6000,13000);
+    }else if(scene==='ocean'){
+      const w=this.noise(bus,'brown',{gain:0.5,hi:700});
+      const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=0.09;lg.gain.value=0.22;lfo.connect(lg);lg.connect(w.g.gain);lfo.start();g.stopList.push(lfo);
+      const lfo2=a.createOscillator(),lg2=a.createGain();lfo2.frequency.value=0.05;lg2.gain.value=350;lfo2.connect(lg2);lg2.connect(w.lp.frequency);lfo2.start();g.stopList.push(lfo2);
+      this.pad(bus,[sc.root,sc.root*Math.pow(2,sc.pent[2]/12)],{gain:0.025,cutoff:380});
+      this.every(()=>this.tone(this.pick(N.slice(6)),echo,{attack:1.2,decay:6,gain:0.05}),9000,18000);
+    }else if(scene==='rain'){
+      this.noise(bus,'pink',{gain:0.35,lo:900,hi:7000});
+      const drips=this.noise(bus,'pink',{gain:0.12,lo:2500,hi:9000});const dl=a.createOscillator(),dg=a.createGain();dl.type='square';dl.frequency.value=7;dg.gain.value=0.06;dl.connect(dg);dg.connect(drips.g.gain);dl.start();g.stopList.push(dl);
+      this.pad(bus,[sc.root/2,sc.root*Math.pow(2,sc.pent[4]/12)/2],{gain:0.03,cutoff:350});
+      this.every(()=>this.tone(this.pick(N.slice(7)),echo,{decay:5,gain:0.07,partials:[[1,1],[2.5,0.15],[4,0.05]]}),5000,11000);
+    }else{ /* strings */
+      const chords=[[0,2,4],[3,0,2],[1,3,0],[4,1,3]].map(c=>c.map(i=>sc.root*Math.pow(2,sc.pent[i]/12)));
+      const voices=this.pad(bus,chords[0],{gain:0.06,cutoff:650,type:'sawtooth'});let ci=0;
+      this.every(()=>{ci=(ci+1)%chords.length;const t=a.currentTime;voices.oscs.forEach((o,i)=>o.frequency.setTargetAtTime(chords[ci][Math.floor(i/2)],t,2.5));},11000,16000);
+      this.every(()=>this.tone(this.pick(N.slice(5)),echo,{attack:0.8,decay:4,gain:0.06}),2200,4800);
+    }
+    master.gain.setTargetAtTime(settings.musicVol/10*0.9,a.currentTime,4);
+  }catch(e){console.warn('music',e);this.g=null;}},
+  stop(){if(!this.g)return;const g=this.g;this.g=null;this.timers.forEach(clearTimeout);this.timers=[];const a=this.ctx();g.master.gain.setTargetAtTime(0,a.currentTime,1.5);
+    setTimeout(()=>{try{g.stopList.forEach(n=>n.stop());g.master.disconnect();}catch{}},7000);},
+  get nodes(){return this.g;},
+  setVol(v){if(this.g)this.g.master.gain.setTargetAtTime(v/10*0.9,this.ctx().currentTime,0.3);},
+  preview(scene){this.stop();this.start(scene);clearTimeout(this._pv);this._pv=setTimeout(()=>{if(!run)this.stop();},12000);}
+};
+
+/* ================= keep screen on & keep running in background ================= */
+const noSleepVideo=(()=>{const v=document.createElement('video');v.setAttribute('playsinline','');v.setAttribute('muted','');v.muted=true;v.loop=true;v.style.cssText='position:fixed;width:1px;height:1px;opacity:0.01;pointer-events:none;left:-10px';v.src='data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAZ0bW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAB9AAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAApl0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAB9AAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAAQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAfQAAAAAAABAAAAAAIRbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAoAAAAUABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABvG1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAXxzdGJsAAAAuHN0c2QAAAAAAAAAAQAAAKhhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAABAAEABIAAAASAAAAAAAAAABFUxhdmM2Mi4yOC4xMDAgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAALmF2Y0MBQsAe/+EAFmdCwB7ZHsBEAAADAAQAAAMAKDxYuSABAAVoy4PLIAAAABBwYXNwAAAAAQAAAAEAAAAUYnRydAAAAAAAAAtYAAAAAAAAABhzdHRzAAAAAAAAAAEAAAAKAAAIAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAHHN0c2MAAAAAAAAAAQAAAAEAAAABAAAAAQAAADxzdHN6AAAAAAAAAAAAAAAKAAACgwAAAAoAAAAKAAAACQAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAADhzdGNvAAAAAAAAAAoAAAa5AAAJRAAACVYAAAlkAAAJdQAACYIAAAmTAAAJoAAACbEAAAnCAAADBXRyYWsAAABcdGtoZAAAAAMAAAAAAAAAAAAAAAIAAAAAAAAH0AAAAAAAAAAAAAAAAQEAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAACRlZHRzAAAAHGVsc3QAAAAAAAAAAQAAB9AAAAQAAAEAAAAAAn1tZGlhAAAAIG1kaGQAAAAAAAAAAAAAAAAAAB9AAABCgFXEAAAAAAAtaGRscgAAAAAAAAAAc291bgAAAAAAAAAAAAAAAFNvdW5kSGFuZGxlcgAAAAIobWluZgAAABBzbWhkAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAHsc3RibAAAAH5zdHNkAAAAAAAAAAEAAABubXA0YQAAAAAAAAABAAAAAAAAAAAAAQAQAAAAAB9AAAAAAAA2ZXNkcwAAAAADgICAJQACAASAgIAXQBUAAAAAAB9AAAABPwWAgIAFFYhW5QAGgICAAQIAAAAUYnRydAAAAAAAAB9AAAABPwAAACBzdHRzAAAAAAAAAAIAAAAQAAAEAAAAAAEAAAKAAAAAfHN0c2MAAAAAAAAACQAAAAEAAAABAAAAAQAAAAIAAAACAAAAAQAAAAQAAAABAAAAAQAAAAUAAAACAAAAAQAAAAYAAAABAAAAAQAAAAcAAAACAAAAAQAAAAgAAAABAAAAAQAAAAkAAAACAAAAAQAAAAsAAAABAAAAAQAAAFhzdHN6AAAAAAAAAAAAAAARAAAAFQAAAAQAAAAEAAAABAAAAAQAAAAEAAAABAAAAAQAAAAEAAAABAAAAAQAAAAEAAAABAAAAAQAAAAEAAAABAAAAAQAAAA8c3RjbwAAAAAAAAALAAAGpAAACTwAAAlOAAAJYAAACW0AAAl+AAAJiwAACZwAAAmpAAAJugAACcsAAAAac2dwZAEAAAByb2xsAAAAAgAAAAH//wAAABxzYmdwAAAAAHJvbGwAAAABAAAAEQAAAAEAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjYyLjEyLjEwMAAAAAhmcmVlAAADM21kYXTeAgBMYXZjNjIuMjguMTAwAAIwQA4AAAJwBgX//2zcRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTY1IHIzMjIyIGIzNTYwNWEgLSBILjI2NC9NUEVHLTQgQVZDIGNvZGVjIC0gQ29weWxlZnQgMjAwMy0yMDI1IC0gaHR0cDovL3d3dy52aWRlb2xhbi5vcmcveDI2NC5odG1sIC0gb3B0aW9uczogY2FiYWM9MCByZWY9MyBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgxOjB4MTExIG1lPWhleCBzdWJtZT03IHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTEgbWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0xIDh4OGRjdD0wIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PS0yIHRocmVhZHM9MSBsb29rYWhlYWRfdGhyZWFkcz0xIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTAgd2VpZ2h0cD0wIGtleWludD0yNTAga2V5aW50X21pbj01IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAAAC2WIhAR8mKAANiOAARggBwEYIAcAAAAGQZo4CPqAARggBwEYIAcAAAAGQZpUAj6gARggBwAAAAVBmmAR9QEYIAcBGCAHAAAABUGagBH1ARggBwAAAAVBmqAR9QEYIAcBGCAHAAAABUGawBH1ARggBwAAAAVBmuAR9QEYIAcBGCAHAAAABUGbABD1ARggBwEYIAcAAAAFQZsgP9QBGCAH';document.body.appendChild(v);return v;})();
+const bgAudio=(()=>{const el=new Audio('data:audio/wav;base64,UklGRmQfAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUAfAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==');el.loop=true;el.volume=0.01;el.setAttribute('playsinline','');return el;})();
+function backgroundKeepAlive(on){
+  try{if(on){bgAudio.play().catch(()=>{});noSleepVideo.play().catch(()=>{});}else{bgAudio.pause();noSleepVideo.pause();}}catch{}
+  try{if('mediaSession' in navigator){if(on){navigator.mediaSession.metadata=new MediaMetadata({title:'WOD Timer',artist:'Workout running'});navigator.mediaSession.playbackState='playing';
+      navigator.mediaSession.setActionHandler('pause',()=>togglePause());navigator.mediaSession.setActionHandler('play',()=>togglePause());navigator.mediaSession.setActionHandler('nexttrack',()=>skipBtn.click());}
+    else navigator.mediaSession.playbackState='none';}}catch{}
+}
+/* ================= wake lock ================= */
+let wakeLock=null;
+async function keepAwake(on){backgroundKeepAlive(on);try{if(on&&settings.wake&&'wakeLock' in navigator){wakeLock=await navigator.wakeLock.request('screen');}else if(!on&&wakeLock){await wakeLock.release();wakeLock=null;}}catch{}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&run&&!run.paused){keepAwake(true);paint();}});
+let bgTick=null;
+
+/* ================= workout engine ================= */
+/* Workout -> flat segment list. Segment: {kind:'prep'|'work'|'rest'|'setrest'|'stretch', dur (s, 0 = open), label, round, rounds, set, sets, block, blocks, countUp, reps, finishable} */
+function buildSegments(w){
+  const segs=[];const prep=w.prep|0;
+  if(prep>0)segs.push({kind:'prep',dur:prep,label:'GET READY'});
+  const nb=w.blocks.length;
+  for(let rep=1;rep<=w.repeat;rep++){
+    w.blocks.forEach((b,bi)=>{
+      const meta={block:bi+1,blocks:nb,rep,reps_:w.repeat,bname:NAMES[b.type]};
+      switch(b.type){
+        case 'amrap':for(let r=1;r<=b.rounds;r++){segs.push({...meta,kind:'work',dur:b.minutes*60,label:'AMRAP',round:b.rounds>1?r:0,rounds:b.rounds,reps:true});
+          if(r<b.rounds&&b.roundRest>0)segs.push({...meta,kind:'rest',dur:b.roundRest,label:'REST',round:r,rounds:b.rounds});}break;
+        case 'fortime':for(let r=1;r<=b.rounds;r++){segs.push({...meta,kind:'work',dur:b.cap*60,label:'FOR TIME',round:b.rounds>1?r:0,rounds:b.rounds,countUp:true,reps:true,finishable:true});
+          if(r<b.rounds&&b.roundRest>0)segs.push({...meta,kind:'rest',dur:b.roundRest,label:'REST',round:r,rounds:b.rounds});}break;
+        case 'emom':for(let s=1;s<=b.sets;s++){for(let r=1;r<=b.rounds;r++)segs.push({...meta,kind:'work',dur:b.interval,label:'EMOM',round:r,rounds:b.rounds,set:s,sets:b.sets});
+          if(s<b.sets&&b.setRest>0)segs.push({...meta,kind:'setrest',dur:b.setRest,label:'SET REST',set:s,sets:b.sets});}break;
+        case 'tabata':for(let s=1;s<=b.sets;s++){for(let r=1;r<=b.rounds;r++){segs.push({...meta,kind:'work',dur:b.work,label:'WORK',round:r,rounds:b.rounds,set:s,sets:b.sets});
+            if(b.rest>0&&r<b.rounds)segs.push({...meta,kind:'rest',dur:b.rest,label:'REST',round:r,rounds:b.rounds,set:s,sets:b.sets});}
+          if(s<b.sets&&b.setRest>0)segs.push({...meta,kind:'setrest',dur:b.setRest,label:'SET REST',set:s,sets:b.sets});}break;
+        case 'rest':segs.push({...meta,kind:'rest',dur:b.duration,label:'REST'});break;
+        case 'stopwatch':segs.push({...meta,kind:'work',dur:0,label:'STOPWATCH',countUp:true,reps:true,finishable:true});break;
+      }
+    });
+    if(rep<w.repeat&&w.repeatRest>0)segs.push({kind:'setrest',dur:w.repeatRest,label:'REST',rep,reps_:w.repeat,bname:'Next round'});
+  }
+  return segs;
+}
+
+let run=null,raf=null;
+const stage=$('#stage'),bigEl=$('#bigEl'),phaseEl=$('#phaseEl'),subEl=$('#subEl'),roundEl=$('#roundEl'),setEl=$('#setEl'),totalEl=$('#totalEl'),bar=$('#bar'),blockEl=$('#blockEl'),stretchEl=$('#stretchEl'),nextEl=$('#nextEl');
+const repsBox=$('#repsBox'),repN=$('#repN'),pauseBtn=$('#pauseBtn'),skipBtn=$('#skipBtn'),finishBtn=$('#finishBtn');
+
+function startWorkout(w,name){audio();const segs=buildSegments(w);if(!segs.length)return toast('Nothing to run');launch(w,segs,name);}
+function launch(w,segs,name){
+  audio();
+  run={w,name:name||w.name,segs,i:0,segStart:0,paused:false,startedAt:performance.now(),pausedTotal:0,pauseAt:0,reps:0,lastTick:-1,lastReminder:0,said:{}};
+  repN.textContent='0';
+  $('#boxName').textContent=[settings.box,settings.coach].filter(Boolean).join(' · ');
+  $('#wodText').textContent=settings.wod;
+  stage.classList.toggle('tv',false);
+  enterSegment(0);keepAwake(true);go('timer');cancelAnimationFrame(raf);loop();clearInterval(bgTick);bgTick=setInterval(()=>{if(document.visibilityState!=='visible')paint();},250);autoTv();
+  if(w.mode!=='stretch')music.stop();
+}
+const seg=()=>run.segs[run.i];const now=()=>performance.now();
+const segElapsed=()=>((run.paused?run.pauseAt:now())-run.segStart)/1000;
+const totalElapsed=()=>((run.paused?run.pauseAt:now())-run.startedAt-run.pausedTotal)/1000;
+function enterSegment(i,startAt){
+  if(i>0&&run.segs[0].kind==='prep'&&run.prepDone==null)run.prepDone=totalElapsed();
+  run.i=i;run.segStart=run.paused?run.pauseAt:(startAt??now());run.lastTick=-1;run.said={};
+  const s=seg();
+  stage.className='tstage '+(s.kind==='prep'?'prep':s.kind==='work'?'work':s.kind==='stretch'?'stretch':'rest')+(stage.classList.contains('tv')?' tv':'')+(run.paused?' paused':'');
+  phaseEl.textContent=s.label;
+  if(s.kind==='work'){cueGo();const last=s.round&&s.round===s.rounds&&(!s.sets||s.set===s.sets);
+    if(settings.voiceLast&&last&&s.rounds>1)say('Last round');else if(s.round)say(`Round ${s.round}`);else say('Go');}
+  else if(s.kind==='rest'||s.kind==='setrest'){beep(440,.3);say(s.kind==='setrest'?'Set complete. Rest':'Rest');}
+  else if(s.kind==='stretch'){beep(660,.25);say(s.stretch.n.replace(/\((left|right)\)/,', $1 side'));}
+  else if(s.kind==='prep'){say('Get ready');}
+  repsBox.style.display=s.reps&&settings.counter?'flex':'none';
+  $('#repLbl').textContent=(s.countUp)?'LAPS':'ROUNDS';
+  finishBtn.style.display=s.finishable?'':'none';
+  const canSkip=s.kind==='prep'||s.kind==='stretch'||((s.kind==='rest'||s.kind==='setrest')&&settings.skipRest)||(s.kind==='work'&&run.w.mode!=='stopwatch');
+  skipBtn.style.display=canSkip?'':'none';
+  if(s.stretch){stretchEl.style.display='';stretchEl.innerHTML=`<b>${esc(s.stretch.n)}</b>${esc(s.stretch.i)}`;}else{stretchEl.style.display='none';}
+  nextEl.textContent=s.kind==='stretch'&&s.next?`NEXT: ${s.next.n.toUpperCase()}`:(s.kind==='stretch'?'LAST STRETCH':'');
+  const total=run.segs.filter(x=>x.kind!=='prep').length;
+  blockEl.textContent=s.blocks>1?`${s.bname} · block ${s.block} of ${s.blocks}${s.reps_>1?` · round ${s.rep}/${s.reps_}`:''}`:(s.reps_>1&&s.kind!=='prep'?`Round ${s.rep} of ${s.reps_}`:'');
+  paintRounds();paint();
+}
+function paintRounds(){
+  const s=seg();
+  if(s.kind==='stretch')roundEl.innerHTML=`${s.round} <small>/ ${s.rounds}</small>`;
+  else if(s.round)roundEl.innerHTML=`Round ${s.round} <small>/ ${s.rounds}</small>`;
+  else if(s.kind==='setrest'&&s.set)roundEl.innerHTML=`Next: set ${s.set+1} <small>/ ${s.sets}</small>`;
+  else roundEl.textContent='';
+  setEl.textContent=s.sets>1&&s.kind!=='setrest'?`SET ${s.set} OF ${s.sets}`:'';
+}
+function loop(){raf=requestAnimationFrame(loop);paint();}
+function paint(){
+  if(!run)return;
+  const s=seg(),e=segElapsed(),te=totalElapsed();
+  totalEl.textContent=fmtLong(te);
+  if('mediaSession' in navigator&&Math.floor(te)!==run.lastMs){run.lastMs=Math.floor(te);try{navigator.mediaSession.metadata=new MediaMetadata({title:`${s.label} ${bigEl.textContent}`,artist:(s.stretch?s.stretch.n:roundEl.textContent)||'WOD Timer'});}catch{}}
+  if(s.dur>0){
+    const remain=s.dur-e;if(remain<=0){nextSegment(run.segStart+s.dur*1000);return;}
+    const shown=Math.ceil(remain);
+    bigEl.textContent=s.kind==='prep'?String(shown):s.countUp?fmtLong(Math.floor(e)):fmt(shown);
+    subEl.textContent=s.countUp?`cap ${fmt(s.dur)} · ${fmt(shown)} left`:'';
+    bar.style.width=(e/s.dur*100).toFixed(2)+'%';
+    if(shown!==run.lastTick&&!run.paused){
+      run.lastTick=shown;
+      if(shown<=3&&shown>=1){cueTick();stage.classList.remove('flash');void stage.offsetWidth;stage.classList.add('flash');}
+      if(s.kind==='work'){
+        if(settings.voiceTen&&shown===10&&s.dur>15)say('10 seconds');
+        if(settings.voiceMin&&shown===60&&s.dur>90)say('One minute left');
+        if(settings.voiceHalf&&s.dur>=60&&shown===Math.floor(s.dur/2)&&!run.said.half){run.said.half=1;beep(880,.1);say('Halfway');}
+        else if(s.dur>=120&&shown%60===0&&shown!==s.dur)beep(880,.1);
+      }
+    }
+  }else{bigEl.textContent=fmtLong(Math.floor(e));subEl.textContent='no time cap';bar.style.width='0%';}
+  if(settings.reminder>0&&!run.paused&&s.kind==='work'){const m=Math.floor(te/settings.reminder);if(m>run.lastReminder){run.lastReminder=m;beep(990,.1);say(`${Math.round(m*settings.reminder/60)} minutes`);}}
+  bigEl.classList.toggle('small',bigEl.textContent.length>5);
+}
+function nextSegment(startAt){if(run.i+1<run.segs.length){enterSegment(run.i+1,startAt);if(startAt!=null&&run&&seg().dur>0&&segElapsed()>=seg().dur)nextSegment(run.segStart+seg().dur*1000);}else finishWorkout(false);}
+function togglePause(){
+  if(!run)return;
+  if(!run.paused){run.paused=true;run.pauseAt=now();pauseBtn.textContent='RESUME';stage.classList.add('paused');keepAwake(false);}
+  else{const d=now()-run.pauseAt;run.pausedTotal+=d;run.segStart+=d;run.paused=false;pauseBtn.textContent='PAUSE';stage.classList.remove('paused');keepAwake(true);audio();}
+}
+pauseBtn.onclick=togglePause;bigEl.onclick=togglePause;
+skipBtn.onclick=()=>{if(run)nextSegment();};
+finishBtn.onclick=()=>finishWorkout(true);
+async function exitRun(){if(!run)return;if(run.paused===false&&totalElapsed()>=5){togglePause();const ok=await ask('Exit this workout? It will not be logged.',{ok:'Exit',cancel:'Keep going',danger:true});if(!ok){if(run)togglePause();return;}}
+  if(run){stopRun();go('home');}}
+$('#exitBtn').onclick=exitRun;
+$('#repPlus').onclick=()=>{run.reps++;repN.textContent=run.reps;beep(1000,.05);buzz(20);};
+$('#repMinus').onclick=()=>{run.reps=Math.max(0,run.reps-1);repN.textContent=run.reps;};
+document.addEventListener('keydown',e=>{if(!run||!$('#timer').classList.contains('active'))return;if(e.code==='Space'){e.preventDefault();togglePause();}if(e.key==='ArrowRight')skipBtn.click();if(e.key==='+'||e.key==='=')$('#repPlus').click();if(e.key==='f')toggleTv();if(e.key==='Escape')exitRun();});
+function stopRun(){cancelAnimationFrame(raf);clearInterval(bgTick);music.stop();run=null;keepAwake(false);repN.textContent='0';pauseBtn.textContent='PAUSE';stage.classList.remove('tv');if(document.fullscreenElement)document.exitFullscreen?.();}
+
+/* TV / landscape */
+function toggleTv(force){const on=force==null?!stage.classList.contains('tv'):force;stage.classList.toggle('tv',on);
+  if(on&&stage.requestFullscreen&&!document.fullscreenElement)stage.requestFullscreen().catch(()=>{});
+  if(!on&&document.fullscreenElement)document.exitFullscreen?.();}
+$('#tvBtn').onclick=()=>toggleTv();
+function autoTv(){if(settings.autoTv&&run&&matchMedia('(orientation:landscape)').matches&&innerWidth>600)stage.classList.add('tv');}
+matchMedia('(orientation:landscape)').addEventListener?.('change',ev=>{if(run&&settings.autoTv)stage.classList.toggle('tv',ev.matches&&innerWidth>600);});
+
+/* ================= finish & log ================= */
+let lastEntry=null;
+function finishWorkout(early){
+  const total=totalElapsed(),s=seg();
+  const workTime=s.countUp?segElapsed():Math.max(0,total-(run.prepDone||0));
+  const rec={id:uid(),date:Date.now(),mode:run.w.mode,name:run.name,plan:workoutSummary(run.w),w:run.w,time:Math.round(workTime),total:Math.round(total),reps:run.reps,early,
+    rounds:s.rounds?(early?s.round:s.rounds):null,notes:''};
+  cueEnd();say(run.w.mode==='stretch'?'Cool-down complete':early?'Finished':'Time');
+  stopRun();stage.className='tstage done';
+  history.unshift(rec);history=history.slice(0,2000);save('wod.history',history);lastEntry=rec;
+  $('#doneTitle').textContent=rec.mode==='stretch'?'Cool-down complete':'Workout complete';
+  $('#doneTime').textContent=fmtLong(rec.time);$('#doneMode').textContent=rec.plan;
+  const rows=[['Mode',rec.name],['Working time',fmtLong(rec.time)],['Total incl. countdown',fmtLong(rec.total)]];
+  if(rec.rounds&&rec.mode!=='stretch')rows.push(['Rounds completed',rec.rounds]);
+  if(rec.mode==='stretch')rows.push(['Stretches',rec.rounds]);
+  if(rec.mode==='amrap')rows.push(['Rounds / reps logged',rec.reps]);
+  if(rec.mode==='fortime'||rec.mode==='stopwatch'){rows.push(['Laps',rec.reps]);rows.push(['Result',early?'Finished under cap':'Time cap reached']);}
+  $('#doneStats').innerHTML=rows.map(([a,b])=>`<div class="stat"><span>${a}</span><span>${b}</span></div>`).join('');
+  $('#doneNotes').value='';$('#doneCooldown').style.display=rec.mode==='stretch'?'none':'';
+  renderRecent();go('done');
+}
+$('#doneNotes').oninput=()=>{if(lastEntry){lastEntry.notes=$('#doneNotes').value;save('wod.history',history);}};
+$('#doneHome').onclick=()=>{renderRecent();go('home');};
+$('#doneCooldown').onclick=()=>openStretch();
+
+function renderRecent(){
+  const box=$('#recentList');
+  if(!history.length){box.innerHTML='<div class="empty">No workouts yet.</div>';return;}
+  box.innerHTML=history.slice(0,5).map(h=>`<button class="item" data-id="${h.id}"><div><b>${esc(h.name)}</b>${resultText(h)}<div class="r">${esc(h.plan)}</div></div><div class="r">${when(h.date)}</div></button>`).join('');
+  box.querySelectorAll('.item').forEach(b=>b.onclick=()=>openEntry(b.dataset.id));
+}
+const when=d=>{d=new Date(d);return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});};
+const resultText=h=>h.mode==='amrap'&&h.reps?` · ${h.reps} rounds`:(h.mode==='fortime'||h.mode==='stopwatch')?` · ${fmtLong(h.time)}`:'';
+
+/* log with calendar */
+let calMonth=new Date();calMonth.setDate(1);let selDay=null;
+const dayKey=d=>{d=new Date(d);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+function renderLog(){
+  const nowD=new Date(),weekAgo=Date.now()-7*864e5,monthStart=new Date(nowD.getFullYear(),nowD.getMonth(),1).getTime();
+  $('#stWeek').textContent=history.filter(h=>h.date>=weekAgo).length;$('#stMonth').textContent=history.filter(h=>h.date>=monthStart).length;$('#stTotal').textContent=history.length;
+  $('#calTitle').textContent=calMonth.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  const days=new Set(history.map(h=>dayKey(h.date)));
+  const first=(calMonth.getDay()+6)%7,n=new Date(calMonth.getFullYear(),calMonth.getMonth()+1,0).getDate(),today=dayKey(Date.now());
+  let html=['M','T','W','T','F','S','S'].map(d=>`<div class="dh">${d}</div>`).join('');
+  for(let i=0;i<first;i++)html+='<div></div>';
+  for(let d=1;d<=n;d++){const k=calMonth.getFullYear()+'-'+pad(calMonth.getMonth()+1)+'-'+pad(d);
+    html+=`<button class="day ${days.has(k)?'has':''} ${k===selDay?'sel':''} ${k===today?'today':''}" data-k="${k}">${d}</button>`;}
+  $('#cal').innerHTML=html;
+  $$('#cal .day').forEach(b=>b.onclick=()=>{selDay=selDay===b.dataset.k?null:b.dataset.k;renderLog();});
+  const list=selDay?history.filter(h=>dayKey(h.date)===selDay):history;
+  $('#logDayTitle').textContent=selDay?new Date(selDay+'T12:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}):'All workouts';
+  $('#logList').innerHTML=list.length?list.slice(0,200).map(h=>`<button class="item" data-id="${h.id}"><div><b>${esc(h.name)}</b>${resultText(h)}<div class="r">${esc(h.plan)}${h.notes?'<br>📝 '+esc(h.notes.slice(0,80)):''}</div></div><div class="r">${when(h.date)}</div></button>`).join(''):'<div class="empty">Nothing logged here.</div>';
+  $$('#logList .item').forEach(b=>b.onclick=()=>openEntry(b.dataset.id));
+}
+$('#calPrev').onclick=()=>{calMonth.setMonth(calMonth.getMonth()-1);renderLog();};
+$('#calNext').onclick=()=>{calMonth.setMonth(calMonth.getMonth()+1);renderLog();};
+let entryId=null;$('#entryBack').onclick=()=>go(navStack.length>1&&navStack[navStack.length-2]==='log'?'log':'home');
+function openEntry(id){
+  const h=history.find(h=>h.id===id);if(!h)return;entryId=id;
+  $('#entryTitle').textContent=h.name;
+  const rows=[['Date',when(h.date)],['Plan',h.plan],['Working time',fmtLong(h.time)],['Total',fmtLong(h.total)]];
+  if(h.rounds)rows.push([h.mode==='stretch'?'Stretches':'Rounds completed',h.rounds]);
+  if(h.reps)rows.push([h.mode==='amrap'?'Rounds / reps logged':'Laps',h.reps]);
+  $('#entryStats').innerHTML=rows.map(([a,b])=>`<div class="stat"><span>${a}</span><span>${esc(b)}</span></div>`).join('');
+  $('#entryNotes').value=h.notes||'';go('entry');
+}
+$('#entryNotes').oninput=()=>{const h=history.find(h=>h.id===entryId);if(h){h.notes=$('#entryNotes').value;save('wod.history',history);}};
+$('#entryDelete').onclick=async()=>{if(await ask('Delete this log entry?',{ok:'Delete',danger:true})){history=history.filter(h=>h.id!==entryId);save('wod.history',history);renderRecent();renderLog();go('log');}};
+$('#entryRepeat').onclick=()=>{const h=history.find(h=>h.id===entryId);if(h&&h.w)startAny(JSON.parse(JSON.stringify(h.w)),h.name);};
+
+/* CSV / backup */
+function csv(){
+  const rows=[['date','time','mode','name','plan','working_seconds','total_seconds','rounds','reps_or_laps','finished_early','notes']];
+  history.slice().reverse().forEach(h=>{const d=new Date(h.date);rows.push([dayKey(d),d.toTimeString().slice(0,5),h.mode,h.name,h.plan,h.time,h.total,h.rounds??'',h.reps??'',h.early?'yes':'no',h.notes||'']);});
+  return rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+}
+async function shareText(text,filename,type){
+  try{const file=new File([text],filename,{type});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:filename});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  const hosted=window!==window.top||/claude/.test(location.hostname);
+  if(!hosted){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=filename;document.body.appendChild(a);a.click();a.remove();toast('Downloaded '+filename);return;}catch{}}
+  try{await navigator.clipboard.writeText(text);toast('Copied to clipboard. Paste it into Notes or a spreadsheet.');}catch{await ask('Copy this text:',{input:true,value:text,ok:'Done'});}
+}
+const exportCsv=()=>{if(!history.length)return toast('Log is empty');shareText(csv(),'wod-log.csv','text/csv');};
+$('#exportBtn').onclick=$('#exportBtn2').onclick=exportCsv;
+$('#backupBtn').onclick=()=>shareText(JSON.stringify({cfg,settings,history,presets,mixCfg,prepOverride,v:1}),'wod-timer-backup.json','application/json');
+$('#restoreBtn').onclick=()=>$('#restoreFile').click();
+$('#restoreFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());
+  if(d.history)history=d.history;if(d.presets)presets=d.presets;if(d.settings)settings=Object.assign(settings,d.settings);if(d.cfg)cfg=Object.assign(cfg,d.cfg);if(d.mixCfg)mixCfg=d.mixCfg;if(d.prepOverride)prepOverride=d.prepOverride;
+  save('wod.history',history);save('wod.presets',presets);save('wod.settings',settings);save('wod.cfg',cfg);save('wod.mix',mixCfg);save('wod.prep',prepOverride);
+  applyTheme();renderPresets();renderRecent();renderSettings();toast('Backup restored');}catch{toast('Could not read that file');}e.target.value='';};
+$('#clearHist').onclick=async()=>{if(await ask('Delete the whole workout log?',{ok:'Delete',danger:true})){history=[];save('wod.history',history);renderRecent();toast('Log cleared');}};
+
+/* ================= settings ================= */
+function renderVoiceList(){const sel=$('#voiceSel');if(!sel)return;loadVoices();const auto=pickVoice();
+  $('#voiceCount').textContent=voices.length?`${voices.length} English voices found on this device`:'No voices reported yet. Tap Refresh, or Test once and then Refresh.';
+  sel.innerHTML=`<option value="">Automatic${auto?' ('+auto.name+')':''}</option>`+voices.map(v=>`<option value="${esc(v.name)}" ${settings.voiceName===v.name?'selected':''}>${esc(v.name)} · ${v.lang}</option>`).join('');
+  sel.onchange=()=>{settings.voiceName=sel.value;save('wod.settings',settings);say('Get ready. Three, two, one, go.',true);};}
+function renderSettings(){
+  const sc=$('#sceneChips');sc.innerHTML=[['random','Random'],...Object.entries(SCENES)].map(([k,v])=>`<button class="chip ${settings.musicScene===k?'on':''}" data-s="${k}">${v}</button>`).join('');
+  sc.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{settings.musicScene=b.dataset.s;save('wod.settings',settings);sc.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));music.preview(b.dataset.s==='random'?null:b.dataset.s);});
+  renderVoiceList();$('#voiceTest').onclick=()=>{say('Get ready. Round one. Halfway. Rest. Nice work.',true);setTimeout(renderVoiceList,800);};
+  $('#voiceRefresh').onclick=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch{}setTimeout(()=>{renderVoiceList();toast(voices.length+' voices');},600);};
+  $$('#settings .toggle').forEach(t=>{t.classList.toggle('on',!!settings[t.dataset.set]);
+    t.onclick=()=>{settings[t.dataset.set]=!settings[t.dataset.set];save('wod.settings',settings);t.classList.toggle('on');
+      if(t.dataset.set==='sound'&&settings.sound)beep(880,.1);if(t.dataset.set==='voice'&&settings.voice)say('Voice on',true);};});
+  bindSteppers('#settings',k=>settings[k],(k,v)=>{settings[k]=v;save('wod.settings',settings);if(k==='musicVol'){music.setVol(v);if(!music.nodes)music.preview();}else beep(880,.08);});
+  bindSegs('#settings',k=>settings[k],(k,v)=>{settings[k]=v;save('wod.settings',settings);if(k==='beepStyle')cueGo();if(k==='theme')applyTheme();if(k==='voiceRate')say('Get ready. Round one. Rest.',true);});
+  for(const [id,key] of [['#setBox','box'],['#setCoach','coach'],['#setWod','wod']]){const el=$(id);el.value=settings[key]||'';el.oninput=()=>{settings[key]=el.value;save('wod.settings',settings);};}
+}
+
+/* ================= boot ================= */
+renderPresets();renderRecent();
+document.addEventListener('pointerdown',function warm(){document.removeEventListener('pointerdown',warm);loadVoices();setTimeout(loadVoices,1000);},{once:true});
+if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+if(!standalone&&/iPhone|iPad|Android/i.test(navigator.userAgent)&&!load('wod.tipSeen',false)){save('wod.tipSeen',true);setTimeout(()=>ask('Install on your phone: Safari → Share → Add to Home Screen. Chrome → menu → Install app.',{ok:'Got it',cancel:'Later'}),800);}
+</script>
+</body>
+</html>
