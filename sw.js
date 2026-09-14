@@ -1,4 +1,4 @@
-const CACHE = 'wod-timer-v15';
+const CACHE = 'wod-timer-v16';
 const FILES = ['./', './index.html', './manifest.json', './icon.svg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

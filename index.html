@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#f3f4f6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,7 +26,7 @@
   --prep:#e8ecf5;--restbg:#dcf5e6;--donebg:#efe4fb;--stretchbg:#dff3f2;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:var(--tab)}
+html{background:var(--bg)}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
   position:fixed;inset:0;width:100%;overscroll-behavior:none;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -72,8 +72,8 @@ h2 button{font-size:13px;color:var(--blue);letter-spacing:0;text-transform:none}
 .pill{font-size:11px;padding:3px 8px;border-radius:10px;background:var(--btn);color:var(--muted);letter-spacing:.5px}
 
 /* Home */
-:root{--pill-amrap:#F5B25A;--pill-fortime:#6AA0F0;--pill-emom:#B98AE0;--pill-tabata:#6CC6AA;--pill-mix:#A9AAB0;--pill-text:#1c1f24;--tab:#ffffff;--tabline:#00000014}
-:root[data-theme="dark"]{--pill-amrap:#d99a45;--pill-fortime:#5a8ad6;--pill-emom:#9f74c9;--pill-tabata:#58ab92;--pill-mix:#8a8c93;--tab:#141a22;--tabline:#ffffff14}
+:root{--pill-amrap:#F5B25A;--pill-fortime:#6AA0F0;--pill-emom:#B98AE0;--pill-tabata:#6CC6AA;--pill-mix:#A9AAB0;--pill-text:#1c1f24;--tab:#f3f4f6;--tabline:transparent}
+:root[data-theme="dark"]{--pill-amrap:#d99a45;--pill-fortime:#5a8ad6;--pill-emom:#9f74c9;--pill-tabata:#58ab92;--pill-mix:#8a8c93;--tab:#0b0f14;--tabline:transparent}
 #home{padding-top:calc(var(--safe-t) + 8px);padding-bottom:calc(var(--safe-b) + 78px);overflow:hidden}
 .hometop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .brand{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-weight:700;font-size:clamp(28px,4.4vh,36px);letter-spacing:2px;line-height:1;text-transform:uppercase}
@@ -97,6 +97,7 @@ h2 button{font-size:13px;color:var(--blue);letter-spacing:0;text-transform:none}
 .tabbar{position:fixed;left:0;right:0;bottom:0;margin-bottom:0;box-shadow:0 40px 0 40px var(--tab);display:none;background:var(--tab);border-top:1px solid var(--tabline);padding:8px 0 calc(var(--safe-b) + 6px);z-index:5}
 .tabbar.show{display:flex}
 .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--muted);padding:4px 0}
+.tabbar button.on svg{filter:drop-shadow(0 2px 6px #3b82f655)}
 .tabbar button svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tabbar button.on{color:var(--blue)}
 .with-tabs{padding-bottom:calc(var(--safe-b) + 90px)}
@@ -451,7 +452,7 @@ let history=load('wod.history',[]);
 let presets=load('wod.presets',[]);
 let mixCfg=Object.assign({blocks:[],repeat:1,repeatRest:60,prep:10},load('wod.mix',{}));
 let prepOverride=load('wod.prep',{});
-function applyTheme(){const light=settings.theme==='light';document.documentElement.dataset.theme=light?'light':'dark';$('meta[name=theme-color]').content=light?'#ffffff':'#141a22';}
+function applyTheme(){const light=settings.theme==='light';document.documentElement.dataset.theme=light?'light':'dark';$('meta[name=theme-color]').content=light?'#f3f4f6':'#0b0f14';}
 applyTheme();
 
 /* ================= navigation ================= */
