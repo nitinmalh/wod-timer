@@ -26,13 +26,13 @@
   --prep:#e8ecf5;--restbg:#dcf5e6;--donebg:#efe4fb;--stretchbg:#dff3f2;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   overscroll-behavior:none;-webkit-user-select:none;user-select:none}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 input,textarea{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;-webkit-user-select:text;user-select:text}
 textarea{min-height:80px;resize:vertical}
-.screen{display:none;min-height:100%;padding:calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 16px)}
+.screen{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 16px)}
 .screen.active{display:flex;flex-direction:column}
 h1{font-size:22px;margin:8px 0 16px;letter-spacing:.5px}
 h2{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:18px 0 8px;display:flex;justify-content:space-between;align-items:center}
@@ -72,18 +72,23 @@ h2 button{font-size:13px;color:var(--blue);letter-spacing:0;text-transform:none}
 /* Home */
 :root{--pill-amrap:#F5B25A;--pill-fortime:#6AA0F0;--pill-emom:#B98AE0;--pill-tabata:#6CC6AA;--pill-mix:#A9AAB0;--pill-text:#1c1f24;--tab:#ffffff;--tabline:#00000014}
 :root[data-theme="dark"]{--pill-amrap:#d99a45;--pill-fortime:#5a8ad6;--pill-emom:#9f74c9;--pill-tabata:#58ab92;--pill-mix:#8a8c93;--tab:#141a22;--tabline:#ffffff14}
-#home{padding-top:calc(var(--safe-t) + 10px);padding-bottom:calc(var(--safe-b) + 84px);height:100vh;height:100dvh;overflow:hidden}
-.hometop{display:flex;justify-content:flex-end;align-items:center;min-height:36px;margin-bottom:6px}
-.modes{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
-.mode{flex:1;min-height:72px;max-height:130px;border-radius:999px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+#home{padding-top:calc(var(--safe-t) + 8px);padding-bottom:calc(var(--safe-b) + 78px);overflow:hidden}
+.hometop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.brand{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-weight:700;font-size:clamp(28px,4.4vh,36px);letter-spacing:2px;line-height:1;text-transform:uppercase}
+.brand em{font-style:normal;color:var(--accent)}
+.brandsub{font-size:13px;color:var(--muted);margin-top:5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.brandsub b{color:var(--text);font-weight:600}
+.streak{background:#ff5a1f1f;color:var(--accent);border-radius:10px;padding:2px 8px;font-weight:700;font-size:12px}
+.modes{flex:1;display:flex;flex-direction:column;gap:10px;min-height:0}
+.mode{flex:1;min-height:60px;max-height:104px;border-radius:999px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
   color:var(--pill-text);padding:8px 64px;text-align:center;transition:transform .08s;border:0}
 .mode:active{transform:scale(.97)}
-.mode b{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-weight:700;font-size:clamp(26px,4.6vh,38px);letter-spacing:1px;text-transform:uppercase;line-height:1.05}
+.mode b{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-weight:700;font-size:clamp(24px,4vh,34px);letter-spacing:1px;text-transform:uppercase;line-height:1.05}
 .mode span{font-size:clamp(12px,1.9vh,15px);line-height:1.25;margin-top:3px;opacity:.9}
 .mode::after{content:"→";position:absolute;right:38px;top:50%;transform:translateY(-50%);font-size:24px;opacity:.7}
 .mode.amrap{background:var(--pill-amrap)}.mode.fortime{background:var(--pill-fortime)}.mode.emom{background:var(--pill-emom)}
 .mode.tabata{background:var(--pill-tabata)}.mode.mix{background:var(--pill-mix)}
-.homelinks{text-align:center;padding:14px 0 4px;flex-shrink:0}
+.homelinks{text-align:center;padding:10px 0 0;flex-shrink:0}
 .cool{color:var(--blue);font-size:clamp(17px,2.4vh,20px);font-weight:600;display:inline-flex;align-items:center;gap:10px;padding:6px 10px}
 .small-links{margin-top:2px;font-size:13px;color:var(--muted)}
 .small-links button{color:var(--muted);padding:6px 8px;font-size:13px}
@@ -112,7 +117,7 @@ h2 button{font-size:13px;color:var(--blue);letter-spacing:0;text-transform:none}
 /* Timer */
 #timer{padding:0}
 .tstage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:calc(var(--safe-t) + 16px) 16px calc(var(--safe-b) + 16px);transition:background .3s;position:relative;min-height:100vh;min-height:100dvh}
+  padding:calc(var(--safe-t) + 16px) 16px calc(var(--safe-b) + 16px);transition:background .3s;position:relative;min-height:100%}
 .tstage.prep{background:var(--prep)}.tstage.work{background:var(--bg)}.tstage.rest{background:var(--restbg)}
 .tstage.done{background:var(--donebg)}.tstage.stretch{background:var(--stretchbg)}.tstage.paused .big{opacity:.5}
 .tstage.flash{animation:flash .5s}
@@ -194,7 +199,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
 <!-- HOME -->
 <section id="home" class="screen active">
-  <div class="hometop"><button class="gear" id="gearBtn" aria-label="Settings">⚙︎</button></div>
+  <div class="hometop"><div><div class="brand">WOD <em>Timer</em></div><div class="brandsub" id="brandSub"></div></div><button class="gear" id="gearBtn" aria-label="Settings">⚙︎</button></div>
   <div class="modes">
     <button class="mode amrap" data-mode="amrap"><b>AMRAP</b><span>As many rounds as possible</span></button>
     <button class="mode fortime" data-mode="fortime"><b>For Time</b><span>Finish the work. Beat the clock.</span></button>
@@ -997,7 +1002,11 @@ $('#doneNotes').oninput=()=>{if(lastEntry){lastEntry.notes=$('#doneNotes').value
 $('#doneHome').onclick=()=>{renderRecent();go('home');};
 $('#doneCooldown').onclick=()=>openStretch();
 
-function renderRecent(){
+function renderBrand(){const el=$('#brandSub');if(!el)return;const d=new Date();const day=d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
+  const days=new Set(history.map(h=>dayKey(h.date)));let streak=0;const t=new Date();if(!days.has(dayKey(t)))t.setDate(t.getDate()-1);while(days.has(dayKey(t))){streak++;t.setDate(t.getDate()-1);}
+  const week=history.filter(h=>h.date>=Date.now()-7*864e5).length;const last=history[0];
+  el.innerHTML=`<span>${day}</span>${streak?`<span class="streak">🔥 ${streak}-day streak</span>`:''}${week?`<span><b>${week}</b> this week</span>`:(last?'':'<span>Ready when you are.</span>')}`;}
+function renderRecent(){renderBrand();
   const box=$('#recentList');
   if(!history.length){box.innerHTML='<div class="empty">No workouts yet.</div>';return;}
   box.innerHTML=history.slice(0,5).map(h=>`<button class="item" data-id="${h.id}"><div><b>${esc(h.name)}</b>${resultText(h)}<div class="r">${esc(h.plan)}</div></div><div class="r">${when(h.date)}</div></button>`).join('');
@@ -1086,7 +1095,10 @@ function renderSettings(){
 /* ================= boot ================= */
 renderPresets();renderRecent();go('home');
 document.addEventListener('pointerdown',function warm(){document.removeEventListener('pointerdown',warm);loadVoices();setTimeout(loadVoices,1000);},{once:true});
-if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&location.protocol!=='file:'){(async()=>{try{const mine=new URL('./',location.href).href;let killed=false;
+  for(const r of await navigator.serviceWorker.getRegistrations()){if(r.scope!==mine){await r.unregister();killed=true;}}
+  if(window.caches){for(const k of await caches.keys()){if(!k.startsWith('wod-timer')){await caches.delete(k);killed=true;}}}
+  await navigator.serviceWorker.register('sw.js');if(killed&&!sessionStorage.getItem('reloaded')){sessionStorage.setItem('reloaded','1');location.reload();}}catch{}})();}
 const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
 if(!standalone&&/iPhone|iPad|Android/i.test(navigator.userAgent)&&!load('wod.tipSeen',false)){save('wod.tipSeen',true);setTimeout(()=>ask('Install on your phone: Safari → Share → Add to Home Screen. Chrome → menu → Install app.',{ok:'Got it',cancel:'Later'}),800);}
 </script>
