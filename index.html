@@ -165,6 +165,31 @@ h2 button{font-size:13px;color:var(--blue);letter-spacing:0;text-transform:none}
 .tstage.tv .wodtext{right:260px}
 @media (orientation:landscape){.tstage .big{font-size:min(28vh,150px)}}
 
+/* Daily mobility */
+.week{display:flex;gap:6px;margin:0 0 10px}
+.week .wd{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0;border-radius:12px;background:var(--panel);font-size:11px;color:var(--muted);border:1.5px solid transparent}
+.week .wd b{font-size:16px;color:var(--text)}
+.week .wd.today{border-color:var(--teal)}
+.week .wd.on{background:#14b8a6;color:#08211f}.week .wd.on b{color:#08211f}
+.week .wd.done::after{content:"✓";font-size:10px;color:var(--green)}.week .wd.on.done::after{color:#08211f}
+.daily{background:linear-gradient(135deg,#101418,#1c2430);color:#f2f5f8;border-radius:18px;padding:14px 16px;margin:6px 0 12px;display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+.daily .eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9fb0c3}
+.daily .t{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-size:24px;letter-spacing:1px;text-transform:uppercase;line-height:1}
+.daily .d{font-size:13px;color:#b7c3d0}
+.daily .btns{display:flex;gap:8px}
+.daily .btns button{flex:1;padding:11px 8px;border-radius:12px;font-weight:700;font-size:14px;background:#ffffff14;color:#fff}
+.daily .btns button.primary{background:#14b8a6;color:#08211f}
+.daily .btns small{display:block;font-weight:500;font-size:11px;opacity:.8}
+.homedaily{padding:8px 0 0;flex-shrink:0}
+.homedaily .daily{margin:0 0 6px;padding:10px 14px;gap:6px}
+.homedaily .daily .t{font-size:19px}
+.tstage.daily{background:#0f1216;color:#f2f5f8}
+.tstage.daily .phase{color:#14b8a6}.tstage.daily .bar{background:#14b8a6}.tstage.daily .sub,.tstage.daily .stretchinfo,.tstage.daily .nextup,.tstage.daily .total,.tstage.daily .exit,.tstage.daily .hint{color:#9fb0c3}
+.tstage.daily .stretchinfo b{color:#fff}.tstage.daily .controls button{background:#ffffff16;color:#fff}.tstage.daily .controls button.primary{background:#14b8a6;color:#08211f}
+.breath{width:min(46vw,220px);height:min(46vw,220px);border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:20px;letter-spacing:3px;text-transform:uppercase;font-weight:700;
+  background:radial-gradient(circle,#14b8a6cc,#14b8a622 70%,transparent 72%);transform:scale(.6);transition:transform 4s ease-in-out}
+.breath.in{transform:scale(1)}
+.tstage.daily .big.breathing{display:none}
 /* Done */
 .donebox{text-align:center}
 .donebox .big{font-size:60px}
@@ -210,6 +235,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
     <button class="mode tabata" data-mode="tabata"><b>Tabata</b><span>Work. Rest. Repeat.</span></button>
     <button class="mode mix" data-mode="mix"><b>MIX</b><span>Build a workout with multiple formats</span></button>
   </div>
+  <div class="homedaily" id="homeDaily"></div>
   <div class="homelinks">
     <button class="cool" data-mode="stretch"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Cool-Down &amp; Stretch <span>→</span></button>
     <div class="small-links"><button data-mode="stopwatch">Stopwatch</button>·<button data-mode="rest">Rest timer</button></div>
@@ -261,8 +287,14 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
 <!-- Stretch setup -->
 <section id="stretchsetup" class="screen with-tabs">
-  <div class="top"><button class="back" data-go="home">‹ Back</button><h1>Cool-down</h1><button class="link" id="saveStretchBtn">Save preset</button></div>
-  <div class="summary">Pick what you trained. A stretch routine is built for exactly those muscles.</div>
+  <div class="top"><button class="back" data-go="home">‹ Back</button><h1>Mobility</h1><button class="link" id="saveStretchBtn">Save preset</button></div>
+  <div id="dailyCard"></div>
+  <h2>Breathwork</h2>
+  <div class="card"><div class="row col"><label>Exercise<small>Guided on screen with the breathing circle</small></label><div class="chips" id="breathChips" style="margin-top:8px"></div></div>
+    <div class="row"><label>Length</label><div class="seg" id="breathLen"><button data-v="120">2 min</button><button data-v="300">5 min</button><button data-v="600">10 min</button></div></div>
+    <div class="row"><label>Start</label><button class="link" id="breathStart">Begin ›</button></div></div>
+  <h2>Cool-down builder</h2>
+  <div class="summary" style="margin-top:0">Pick what you trained. A stretch routine is built for exactly those muscles.</div>
   <div class="card"><div class="row col"><label style="margin-bottom:8px">Muscles trained</label><div class="chips" id="muscleChips"></div></div></div>
   <div class="card">
     <div class="row"><label>Routine length</label><div class="seg" data-key="mode"><button data-v="time">By total time</button><button data-v="manual">Manual</button></div></div>
@@ -366,7 +398,8 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
     <div class="row"><label>Vibrate<small>Android and supported devices</small></label><button class="toggle" data-set="vibrate"></button></div>
     <div class="row"><label>Voice announcements<small>"Work", "Rest", "Round 3", "Time"</small></label><button class="toggle" data-set="voice"></button></div>
     <div class="row col"><label>Voice<small>iPhone only shows web apps a fixed list of voice names, but it plays the Enhanced or Premium version of any listed voice once downloaded. Go to iPhone Settings → Accessibility → Spoken Content → Voices → English and download <b>Samantha (Enhanced)</b>, Nicky (Enhanced) or Karen (Premium). Restart the app, then pick that name here. Android: install Google “natural” voices in Text-to-speech settings.</small></label><div id="voiceCount" style="font-size:12px;color:var(--muted);margin-top:6px"></div><div style="display:flex;gap:8px;margin-top:8px"><button class="link" id="voiceRefresh">Refresh</button><select id="voiceSel" style="flex:1;font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px"></select><button class="link" id="voiceTest">Test</button></div></div>
-    <div class="row"><label>Voice speed</label><div class="seg" data-set="voiceRate"><button data-v="slow">Slow</button><button data-v="normal">Normal</button><button data-v="fast">Fast</button></div></div>
+    <div class="row"><label>Coach voice<small>Studio-recorded voice used for all cues</small></label><div class="seg" data-set="clipVoice"><button data-v="nicole">Nicole</button><button data-v="bella">Bella</button></div></div>
+    <div class="row"><label>Voice speed<small>Applies to the phone fallback voice only</small></label><div class="seg" data-set="voiceRate"><button data-v="slow">Slow</button><button data-v="normal">Normal</button><button data-v="fast">Fast</button></div></div>
     <div class="row"><label>Voice: halfway</label><button class="toggle" data-set="voiceHalf"></button></div>
     <div class="row"><label>Voice: one minute left</label><button class="toggle" data-set="voiceMin"></button></div>
     <div class="row"><label>Voice: last 10 seconds</label><button class="toggle" data-set="voiceTen"></button></div>
@@ -424,7 +457,7 @@ function ask(msg,opts={}){return new Promise(res=>{const m=$('#modal'),inp=$('#m
   m.onclick=e=>{if(e.target===m)no.click();};});}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1800);}
 
-const NAMES={amrap:'AMRAP',fortime:'For Time',emom:'EMOM',tabata:'Tabata',mix:'MIX',stopwatch:'Stopwatch',rest:'Rest',stretch:'Cool-down'};
+const NAMES={amrap:'AMRAP',fortime:'For Time',emom:'EMOM',tabata:'Tabata',mix:'MIX',stopwatch:'Stopwatch',rest:'Rest',stretch:'Cool-down',daily:'Daily mobility'};
 const COLORS={amrap:'#ff5a1f',fortime:'#2ecc71',emom:'#3b82f6',tabata:'#f5b820',rest:'#6b7a8c',mix:'#a855f7',stretch:'#14b8a6',stopwatch:'#6b7a8c'};
 /* Block defaults. Every mode has rounds/sets with rest, matching the premium timer. */
 const DEF={
@@ -446,7 +479,7 @@ const FIELDS={
 };
 let cfg=load('wod.cfg',{}); for(const k in DEF) cfg[k]=Object.assign({},DEF[k],cfg[k]||{});
 let settings=Object.assign({prep:10,skipRest:true,counter:true,wake:true,light:false,sound:true,beepStyle:'classic',volume:8,vibrate:true,
-  voice:true,voiceHalf:true,voiceMin:true,voiceTen:false,voiceLast:true,reminder:0,box:'',coach:'',wod:'',autoTv:true,theme:'light',voiceName:'',musicVol:6,musicScene:'random',holdPref:'medium',voiceRate:'normal'},load('wod.settings',{}));
+  voice:true,voiceHalf:true,voiceMin:true,voiceTen:false,voiceLast:true,reminder:0,box:'',coach:'',wod:'',autoTv:true,theme:'light',voiceName:'',musicVol:6,musicScene:'random',holdPref:'medium',voiceRate:'normal',clipVoice:'nicole'},load('wod.settings',{}));
 if(settings.theme!=='light'&&settings.theme!=='dark')settings.theme='light';
 let history=load('wod.history',[]);
 let presets=load('wod.presets',[]);
@@ -535,7 +568,7 @@ function blockSummary(b,withTotal){
   return s;
 }
 function workoutSummary(w){
-  if(w.mode==='stretch')return w.name;
+  if(w.mode==='stretch'||w.mode==='daily')return w.name;
   const parts=w.blocks.map(b=>blockSummary(b,false));
   let tot=w.blocks.reduce((a,b)=>a+blockDur(b),0);tot=tot*w.repeat+(w.repeat-1)*w.repeatRest;
   return parts.join(' → ')+(w.repeat>1?` × ${w.repeat}`:'')+(w.mode!=='stopwatch'?` · ${fmtLong(tot)}`:'');
@@ -582,7 +615,7 @@ function renderPresets(){
   box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(await ask('Delete this preset?',{ok:'Delete',danger:true})){presets=presets.filter(p=>p.id!==b.dataset.del);save('wod.presets',presets);renderPresets();}});
 }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function startAny(w,name){ if(w.mode==='stretch') startStretch(w.stretch,name); else startWorkout(w,name); }
+function startAny(w,name){ if(w.mode==='stretch') startStretch(w.stretch,name); else if(w.mode==='daily'&&w.daily!=='breath') startDaily(w.daily||'regular',w.day?seedToDate(w.day):null); else startWorkout(w,name); }
 
 /* ================= cool-down / stretch ================= */
 const MUSCLES={
@@ -717,7 +750,7 @@ function openStretch(){
   bindSteppers('#stretchsetup',k=>c[k],(k,v)=>{c[k]=v;save('wod.cfg',cfg);stretchSummary();});
   bindSegs('#stretchsetup',k=>c[k],(k,v)=>{c[k]=v;save('wod.cfg',cfg);stretchSummary();});
   const mt=$('#musicToggle');mt.classList.toggle('on',!!c.music);mt.onclick=()=>{c.music=!c.music;mt.classList.toggle('on');save('wod.cfg',cfg);if(c.music){music.preview();}};
-  stretchSummary();go('stretchsetup');
+  renderDaily();stretchSummary();go('stretchsetup');
 }
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 function expand(st,g){const base={...st,group:MUSCLES[g]};return st.sides?[{...base,n:st.n+' (left)'},{...base,n:st.n+' (right)'}]:[base];}
@@ -747,6 +780,180 @@ function startStretch(c,name){
   if(c.music)music.start();else music.stop();
 }
 
+/* ================= daily mobility sessions ================= */
+const POSES=[
+  {n:'Pigeon',t:['hips','glutes'],sides:true,i:'Front shin across the mat, back leg long. Square the hips, then fold forward and let the head rest. Breathe into the outer hip.'},
+  {n:'Couch stretch',t:['hips','quads'],sides:true,i:'Back knee at the wall, shin up the wall, front foot planted. Squeeze the glute and lift the chest. Stay tall.'},
+  {n:'90/90',t:['hips','glutes'],sides:true,i:'Both knees at 90°, front shin across, back shin behind. Hinge over the front shin with a long spine.'},
+  {n:'Frog',t:['hips','adductors'],i:'Knees wide, feet turned out, forearms down. Rock the hips back an inch at a time. Let the inner thighs release.'},
+  {n:'Saddle',t:['quads','hips','spine'],i:'Kneel with feet outside the hips, sit between the heels, lean back to the hands, forearms or floor. Only as far as the knees allow.'},
+  {n:'Butterfly',t:['hips','adductors'],i:'Soles together, knees drop, fold forward and round the spine. Let the head hang heavy.'},
+  {n:'Seated straddle',t:['hamstrings','adductors','spine'],i:'Legs wide, walk the hands forward, chest toward the floor. Relax the neck and jaw.'},
+  {n:'Half saddle',t:['quads','hips'],sides:true,i:'One leg folded back, the other extended or bent. Lean back onto the hands or forearms.'},
+  {n:'Lizard',t:['hips','adductors'],sides:true,i:'Low lunge, both hands inside the front foot, back knee down. Sink the hips and let the front knee drift out.'},
+  {n:'Half split',t:['hamstrings','calves'],sides:true,i:'From a kneeling lunge, straighten the front leg, toes up. Hinge from the hips, spine long.'},
+  {n:'Dragon',t:['hips','quads'],sides:true,i:'Deep lunge, back knee down and pushed back. Hands on the front knee or the floor. Sink and breathe.'},
+  {n:'Shoelace',t:['glutes','hips'],sides:true,i:'Knees stacked one over the other, feet by the hips. Fold forward over the knees.'},
+  {n:'Deer',t:['hips','glutes'],sides:true,i:'One knee forward at 90°, the other out to the side at 90°. Sit tall, then lean over the front knee.'},
+  {n:'Reclined figure four',t:['glutes','hips'],sides:true,i:'On your back, ankle over the opposite knee. Draw the legs in and let the crossed knee open.'},
+  {n:'Happy baby',t:['hips','back'],i:'On your back, hold the outsides of the feet, knees toward the armpits. Rock gently side to side.'},
+  {n:'Supine twist',t:['spine','back','glutes'],sides:true,i:'Knees to one side, arms wide, gaze the other way. Let the shoulders melt toward the floor.'},
+  {n:'Child\'s pose',t:['back','spine','shoulders'],i:'Knees wide, big toes together, arms long. Sink the hips back and breathe into the ribs.'},
+  {n:'Puppy pose',t:['shoulders','lats','spine'],i:'Hips over knees, walk the hands forward, chest to the floor, forehead down. Reach the arms long.'},
+  {n:'Sphinx',t:['spine','back','core'],i:'On the belly, forearms down, elbows under shoulders. Let the low back soften and the legs go heavy.'},
+  {n:'Seal',t:['spine','back'],i:'Like sphinx with straight arms, hands slightly forward. Relax the glutes and breathe into the belly.'},
+  {n:'Caterpillar',t:['hamstrings','back','spine'],i:'Seated, legs long, round forward and let the head hang. No pulling, just gravity.'},
+  {n:'Thread the needle',t:['shoulders','spine'],sides:true,i:'From all fours, slide one arm under the body, shoulder and temple to the floor. Let the top arm reach or rest.'},
+  {n:'Melting heart on blocks',t:['shoulders','lats','chest'],i:'Elbows on a box or bench, hands to the back of the neck, sink the chest down and through.'},
+  {n:'Kneeling lat stretch',t:['lats','shoulders'],i:'Elbows on a raised surface, palms together, sink the head between the arms.'},
+  {n:'Doorway chest opener',t:['chest','shoulders'],sides:true,i:'Forearm on a frame at shoulder height, step through and turn away. Soft elbow, long neck.'},
+  {n:'Bar hang',t:['lats','shoulders','spine'],i:'Hang from a bar, feet light or off the floor. Let the shoulders rise to the ears and the spine lengthen.'},
+  {n:'Thoracic bridge on roller',t:['spine','chest'],i:'A roller or rolled towel across the mid back, hands behind the head. Extend over it and breathe wide.'},
+  {n:'Bananasana',t:['lats','core','spine'],sides:true,i:'On your back, walk the feet and shoulders to one side into a crescent. Cross the ankles, hold the wrist overhead.'},
+  {n:'Wall calf stretch',t:['calves','ankles'],sides:true,i:'Ball of the foot up the wall, heel down, lean the hips in. Knee straight, then slightly bent.'},
+  {n:'Deep squat hold',t:['hips','ankles','adductors'],i:'Feet a little wider than hips, sink all the way down. Elbows press the knees out, chest up. Rock gently.'},
+  {n:'Ankle rocks',t:['ankles','calves'],sides:true,i:'Half-kneeling, drive the front knee over the toes and back, heel down. Slow reps, then hold at the end.'},
+  {n:'Toe squat',t:['ankles','calves'],i:'Kneel with toes tucked under, sit back on the heels. Hands on thighs, breathe steady. Come out slowly.'},
+  {n:'Standing forward fold',t:['hamstrings','back'],i:'Feet hip width, hinge and hang, hold opposite elbows. Soft knees, sway a little.'},
+  {n:'Wide-leg forward fold',t:['hamstrings','adductors'],i:'Feet wide, fold and let the hands find the floor or a block. Crown of the head toward the ground.'},
+  {n:'Reclined hamstring with strap',t:['hamstrings','calves'],sides:true,i:'On your back, strap or towel around the foot, leg straight up. Relax the other leg down.'},
+  {n:'Sleeping swan',t:['glutes','hips'],sides:true,i:'A gentle pigeon, front shin closer to the hips, fold all the way down onto the forearms.'},
+  {n:'Cat-cow flow',t:['spine','back'],i:'On all fours, slow waves through the spine with the breath. Inhale to arch, exhale to round.'},
+  {n:'Kneeling hip flexor',t:['hips','quads'],sides:true,i:'Back knee down, tuck the pelvis, shift forward until the front of the hip opens. Reach the same arm overhead.'},
+  {n:'Wall straddle',t:['adductors','hamstrings'],i:'Hips against the wall, legs up, let them fall open. Gravity does the work.'},
+  {n:'Eagle arms',t:['shoulders','upper back'],sides:true,i:'Wrap one arm under the other, palms together if you can. Lift the elbows and reach forward.'},
+  {n:'Neck release',t:['neck','shoulders'],sides:true,i:'Let the ear fall toward one shoulder, the opposite hand reaches to the floor. Slow breaths.'},
+  {n:'Reverse prayer wrists',t:['forearms','shoulders'],i:'Backs of the hands together behind the back, or palms together in front. Raise slowly.'},
+  {n:'Legs up the wall',t:['recovery','hamstrings','back'],i:'Hips close to the wall, legs straight up, arms open. Close the eyes and let the whole body settle.'},
+  {n:'Corpse pose',t:['recovery'],i:'Lie flat, palms up, feet fall open. Scan from the toes to the crown and release each part.'},
+  {n:'Twisted dragon',t:['hips','spine','quads'],sides:true,i:'From dragon, open the same-side arm to the sky and turn the chest. Keep the back knee heavy.'},
+  {n:'Winged dragon',t:['hips','adductors'],sides:true,i:'From dragon, roll onto the outer edge of the front foot and let the knee fall out. Breathe into the inner hip.'},
+  {n:'Swan',t:['hips','quads','spine'],sides:true,i:'Pigeon legs, but stay upright on the hands. Lift the chest and let the front of the back hip open.'},
+  {n:'Square pose',t:['hips','glutes'],sides:true,i:'Shins stacked like a square, one ankle on the opposite knee. Sit tall, then fold if there is room.'},
+  {n:'Reclined butterfly',t:['hips','adductors','chest'],i:'On your back, soles together, knees wide. Arms open, palms up. Nothing to do here but breathe.'},
+  {n:'Reclined pigeon with strap',t:['glutes','hips'],sides:true,i:'Figure four on the back, strap around the lower thigh, gently pull in. Head stays down.'},
+  {n:'Runner\'s lunge hold',t:['hips','hamstrings','calves'],sides:true,i:'Long low lunge, back leg straight and strong, hands framing the front foot. Heel reaches back.'},
+  {n:'Standing pigeon on box',t:['glutes','hips'],sides:true,i:'Shin on a box or table at hip height, square the hips, hinge forward over it.'},
+  {n:'Cossack hold',t:['adductors','hips','ankles'],sides:true,i:'Wide stance, sit onto one heel, the other leg straight with toes up. Chest open.'},
+  {n:'Garland squat with twist',t:['hips','spine','ankles'],sides:true,i:'In a deep squat, one hand down, the other reaches up and the chest turns. Slow breaths.'},
+  {n:'Hero reclined',t:['quads','ankles','spine'],i:'Sit between the heels, walk the hands back and lower toward the forearms or the floor.'},
+  {n:'Side-lying quad',t:['quads','hips'],sides:true,i:'Lie on your side, grab the top ankle, draw the heel to the glute and press the hip forward.'},
+  {n:'Wall hamstring',t:['hamstrings','calves'],sides:true,i:'Lie in a doorway, one leg straight up the wall, the other through the doorway on the floor.'},
+  {n:'Head to knee fold',t:['hamstrings','back','spine'],sides:true,i:'One leg long, the other foot to the inner thigh. Fold over the long leg with a soft spine.'},
+  {n:'Standing crossed fold',t:['hamstrings','glutes'],sides:true,i:'Cross one foot over the other, hinge and hang. Switch after the hold.'},
+  {n:'Downward dog hold',t:['hamstrings','calves','shoulders','lats'],i:'Hips high, heels sinking, head between the arms. Pedal the feet, then settle.'},
+  {n:'Calf stretch on step',t:['calves','ankles'],sides:true,i:'Ball of the foot on a step, heel hanging. Let it sink. Knee straight, then soft.'},
+  {n:'Kneeling shin stretch',t:['ankles','shins'],i:'Kneel with the tops of the feet flat, sit back onto the heels. Lean back if you want more.'},
+  {n:'Ankle circles and holds',t:['ankles'],sides:true,i:'Seated, one ankle across the knee. Slow circles each way, then hold the foot in a stretch.'},
+  {n:'Cat pulling its tail',t:['quads','spine','hips'],sides:true,i:'Lie on one side, top knee forward, reach back for the bottom foot. Gentle twist through the spine.'},
+  {n:'Reclining twist with bent knee',t:['spine','glutes','chest'],sides:true,i:'One knee crosses the body, opposite hand on it, other arm wide. Look toward the open hand.'},
+  {n:'Seated twist',t:['spine','back'],sides:true,i:'Sit tall, one foot outside the other knee, hug or hook the elbow. Lengthen on the inhale, turn on the exhale.'},
+  {n:'Supported fish',t:['chest','shoulders','spine'],i:'Block or rolled towel under the upper back, arms open, head supported. Let the chest lift.'},
+  {n:'Supported bridge',t:['hips','spine','back'],i:'Block or firm cushion under the sacrum. Legs long or bent. Let the low back and hips soften.'},
+  {n:'Wide child\'s pose with side reach',t:['lats','back','shoulders'],sides:true,i:'From child\'s pose walk both hands to one side and lengthen the opposite ribs.'},
+  {n:'Cow face arms',t:['shoulders','triceps','chest'],sides:true,i:'One arm up and over, the other behind and up. Hold hands or a strap. Sit tall.'},
+  {n:'Wall angels hold',t:['shoulders','upper back','chest'],i:'Back flat on the wall, arms in a goal post, slide up to the end of the range and stay.'},
+  {n:'Prone Y hold',t:['shoulders','upper back'],i:'Face down, arms in a Y, thumbs up. Lift the arms an inch and hold while breathing.'},
+  {n:'Sleeper stretch',t:['shoulders'],sides:true,i:'Lie on one side, elbow at 90°, use the other hand to gently press the forearm down.'},
+  {n:'Cross-body shoulder',t:['shoulders','upper back'],sides:true,i:'Arm across the chest, the other forearm hugs it in. Keep the shoulder down.'},
+  {n:'Kneeling forearm lat stretch',t:['lats','triceps'],i:'Kneel, forearms on a bench, palms up, sink the chest and push the armpits down.'},
+  {n:'Table top chest opener',t:['chest','shoulders','forearms'],i:'Sit, hands behind with fingers pointing back, lift the hips and let the chest open.'},
+  {n:'Wrist and forearm circles',t:['forearms'],i:'On all fours, fingers back toward the knees, rock the weight around slowly. Then shake out.'},
+  {n:'Neck half circles',t:['neck'],i:'Chin to chest, roll the ear toward one shoulder, then the other. Never back. Slow and easy.'},
+  {n:'Chin tuck hold',t:['neck','upper back'],i:'Lie on your back, draw the chin gently in, lengthen the back of the neck and hold.'},
+  {n:'Standing side bend',t:['lats','core','spine'],sides:true,i:'Reach one arm over, hold the wrist, and bend away. Keep both feet rooted.'},
+  {n:'Reclined full body reach',t:['recovery','core','spine'],i:'Lie flat, reach the fingers and toes in opposite directions. Then release completely.'},
+  {n:'Rag doll',t:['back','hamstrings','neck'],i:'Stand, fold, hold opposite elbows and sway. Shake the head yes and no.'},
+  {n:'Constructive rest',t:['recovery','back'],i:'On your back, knees bent, feet wide, knees resting together. Hands on the belly. Breathe low.'},
+  {n:'Side-lying rest',t:['recovery'],i:'Curl onto one side, head supported, knees bent. Let the breath slow down completely.'},
+  {n:'Melting heart',t:['shoulders','chest','spine'],i:'Hips over the knees, arms long, chest and chin toward the floor. Let the upper back drop.'},
+  {n:'Half frog',t:['hips','adductors','quads'],sides:true,i:'Face down, one knee out to the side at hip height, hips pressing down.'},
+  {n:'Reclined hero',t:['quads','ankles'],i:'Kneel with feet outside the hips and lie back on cushions or the floor. Knees together if possible.'},
+  {n:'Banana with strap',t:['lats','spine'],sides:true,i:'Lie on the back, feet and shoulders to one side, hold a strap overhead to lengthen the top side.'},
+];
+const BREATHS=[
+  {n:'Box breathing',i:'Inhale four, hold four, exhale four, hold four. Follow the circle.',b:{in:4,hold:4,out:4,hold2:4}},
+  {n:'Extended exhale',i:'Inhale for four, exhale slowly for eight. The long exhale tells the body it is safe.',b:{in:4,out:8}},
+  {n:'4-7-8 breathing',i:'Inhale four, hold seven, exhale eight. Let the exhale be soft and complete.',b:{in:4,hold:7,out:8}},
+  {n:'Coherent breathing',i:'Five and a half seconds in, five and a half out. Smooth and even, no pauses.',b:{in:5.5,out:5.5}},
+  {n:'Triangle breath',i:'Inhale four, hold four, exhale four. Three even sides.',b:{in:4,hold:4,out:4}},
+  {n:'Belly breathing',i:'Hands on the belly. Inhale so the hands rise, exhale so they fall. Four in, six out.',b:{in:4,out:6}},
+  {n:'Ocean breath',i:'Breathe in and out through the nose with a soft whisper in the throat. Five in, seven out.',b:{in:5,out:7}},
+  {n:'Humming exhale',i:'Inhale through the nose, then hum the exhale until the breath runs out. Feel the vibration in the chest.',b:{in:4,out:8}},
+  {n:'Sigh of relief',i:'Two short inhales through the nose, one long open exhale through the mouth.',b:{in:2,hold:1,out:7}},
+  {n:'Counting down',i:'Inhale four, exhale six. On each exhale count down from ten.',b:{in:4,out:6}},
+];
+const CUES={
+  generic:['Soften the jaw and the space between the eyebrows.','Let the shoulders drop away from the ears.','Nothing to force here. Let gravity do the work.','With every exhale, see if there is a little more room.','Notice where you are holding on, and let that go.','Breathe low into the belly. Slow in, slower out.','If the intensity is above a six out of ten, back off a little.','Stay with the breath. The stretch happens in the exhale.','Let the weight of the body sink into the floor.','You are exactly where you need to be. Settle in.','Relax the hands. Relax the feet.','Find stillness. Let the breath do the moving.','Long, slow exhale. Let the body soften around the bones.','Nice. Stay here, and keep the breath easy.','Close the eyes if that helps you settle.','Half way through the hold. Soften a little more.'],
+  hips:['Let the hips get heavy. Sink toward the mat.','Relax the glute on the working side and let it open.','Keep the hips square, then let them soften.','Breathe into the outer hip.','Let the inner thighs release with each exhale.'],
+  shoulders:['Let the chest melt toward the floor.','Keep the neck long. Chin slightly tucked.','Broaden across the collarbones.','Soften the front of the shoulders.','Let the armpits sink down.'],
+  spine:['Lengthen through the crown of the head.','Let the spine round, one vertebra at a time.','Breathe into the back of the ribs.','Keep the twist gentle. It deepens on its own.'],
+  hamstrings:['Keep the knees soft. Nothing locked.','Hinge from the hips, not the low back.','Let the head hang heavy.','Feel the back of the leg lengthen on the exhale.'],
+  quads:['Squeeze the glute of the back leg to protect the knee.','Tuck the pelvis and lift the chest.','Let the front of the hip open slowly.'],
+  calves:['Press the heel down gently.','Keep the back leg long and the heel rooted.'],
+  recovery:['Let the whole body get heavy.','There is nothing to do here.','Let each exhale be a little longer than the inhale.','Scan the body from the feet to the head and release.'],
+};
+const THEMES=[
+  {n:'Lower body reset',t:['hips','hamstrings','glutes','calves','ankles'],d:'Hips, hamstrings and calves after a heavy week.'},
+  {n:'Hips & hamstrings',t:['hips','hamstrings','glutes','adductors'],d:'Deep hip openers and long hamstring holds.'},
+  {n:'Shoulders & T-spine',t:['shoulders','lats','chest','spine','upper back','neck'],d:'Open the chest, free the shoulders, extend the mid back.'},
+  {n:'Posterior chain',t:['hamstrings','back','glutes','calves','spine'],d:'Everything down the back of the body.'},
+  {n:'Hip openers & spine',t:['hips','adductors','spine','back'],d:'Squat depth and a supple spine.'},
+  {n:'Full body flow',t:['hips','shoulders','hamstrings','spine','quads','ankles'],d:'A little of everything, head to toe.'},
+  {n:'Recovery & breath',t:['recovery','back','hips','spine','breath'],d:'Slow holds and breathing to downshift the nervous system.'},
+];
+function seededRng(seed){let x=seed%2147483647;if(x<=0)x+=2147483646;return()=>(x=x*16807%2147483647)/2147483647;}
+function dateSeed(d){return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();}
+function todaySeed(){return dateSeed(new Date());}
+function dailyTheme(d){d=d||new Date();return THEMES[(d.getDay()+6)%7];}
+function weekDates(){const t=new Date();t.setHours(12,0,0,0);const mon=new Date(t);mon.setDate(t.getDate()-((t.getDay()+6)%7));return [...Array(7)].map((_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});}
+let selectedDay=null;
+/* kind: 'regular' (~22 min) or 'short' (~10 min). Sessions are seeded by date so today's session is the same every time you open it. */
+function buildDaily(kind,date){
+  date=date||new Date();const theme=dailyTheme(date),rng=seededRng(dateSeed(date)+(kind==='short'?7:0));
+  const slots=kind==='short'?6:9,hold=kind==='short'?90:120,gap=10,intro=kind==='short'?30:60,outro=kind==='short'?45:90;
+  const pool=POSES.filter(p=>!p.breath&&p.t.some(t=>theme.t.includes(t)));
+  const shuffled=pool.map(p=>[rng(),p]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+  const picked=[];let used=0;
+  for(const p of shuffled){const cost=p.sides?2:1;if(used+cost>slots)continue;picked.push(p);used+=cost;if(used>=slots)break;}
+  if(picked.length&&!picked.some(p=>!p.sides)&&used<slots){const f=shuffled.find(p=>!p.sides&&!picked.includes(p));if(f)picked.push(f);}
+  const bi=BREATHS[Math.floor(rng()*BREATHS.length)],bo=BREATHS[Math.floor(rng()*BREATHS.length)];
+  const segs=[{kind:'breath',dur:intro,label:'SETTLE IN',stretch:{n:bi.n,i:bi.i},breath:bi.b}];
+  const flat=[];picked.forEach(p=>{if(p.sides){flat.push({...p,n:p.n+' · left'});flat.push({...p,n:p.n+' · right'});}else flat.push(p);});
+  flat.forEach((p,i)=>{segs.push({kind:'stretch',dur:hold,label:'HOLD',stretch:{n:p.n,i:p.i},tags:p.t,round:i+1,rounds:flat.length,next:flat[i+1],cueSeed:Math.floor(rng()*1e6)});
+    if(i<flat.length-1)segs.push({kind:'rest',dur:gap,label:'TRANSITION',stretch:{n:'Next: '+flat[i+1].n,i:flat[i+1].i},next:flat[i+1],sameSide:/· right$/.test(flat[i+1].n)});});
+  segs.push({kind:'breath',dur:outro,label:'RECOVER',stretch:{n:bo.n,i:bo.i},breath:bo.b});
+  const total=segs.reduce((a,s)=>a+s.dur,0);
+  return {theme,segs,total,kind,poses:flat.length,date};
+}
+function dailyCardHtml(compact,date){
+  date=date||new Date();const th=dailyTheme(date),r=buildDaily('regular',date),sh=buildDaily('short',date);
+  const isToday=dateSeed(date)===todaySeed();const day=date.toLocaleDateString(undefined,{weekday:'long'})+(isToday?' · Today':'');
+  const done=history.some(h=>h.mode==='daily'&&h.day===dateSeed(date));
+  const holds=r.segs.filter(x=>x.kind==='stretch').map(x=>x.stretch.n.replace(' · left','').replace(' · right','')).filter((v,i,a)=>a.indexOf(v)===i);
+  return `<div class="daily"><div class="eyebrow">${compact?'Daily session':'Session'} · ${day}${done?' · ✓ done':''}</div><div class="t">${esc(th.n)}</div>${compact?'':`<div class="d">${esc(th.d)}</div><div class="d" style="opacity:.75">${esc(holds.join(' · '))}</div>`}
+    <div class="btns"><button class="primary" data-daily="regular" data-date="${dateSeed(date)}">Regular<small>${fmtLong(r.total)} · ${r.poses} holds</small></button><button data-daily="short" data-date="${dateSeed(date)}">Short<small>${fmtLong(sh.total)} · ${sh.poses} holds</small></button></div></div>`;
+}
+function weekStripHtml(){const sel=selectedDay||new Date();return `<div class="week">${weekDates().map(d=>{const isT=dateSeed(d)===todaySeed(),on=dateSeed(d)===dateSeed(sel);const done=history.some(h=>h.mode==='daily'&&h.day===dateSeed(d));
+  return `<button class="wd ${on?'on':''} ${isT?'today':''} ${done?'done':''}" data-wd="${dateSeed(d)}"><span>${d.toLocaleDateString(undefined,{weekday:'short'}).slice(0,3)}</span><b>${d.getDate()}</b></button>`;}).join('')}</div>`;}
+function seedToDate(n){return new Date(Math.floor(n/10000),Math.floor(n/100)%100-1,n%100,12);}
+let breathSel=0,breathLen=300;
+function renderBreath(){const bc=$('#breathChips');if(!bc)return;bc.innerHTML=BREATHS.map((b,i)=>`<button class="chip ${i===breathSel?'on':''}" data-b="${i}">${b.n}</button>`).join('');
+  bc.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{breathSel=+b.dataset.b;renderBreath();});
+  $$('#breathLen button').forEach(b=>{b.classList.toggle('on',+b.dataset.v===breathLen);b.onclick=()=>{breathLen=+b.dataset.v;renderBreath();};});
+  $('#breathStart').onclick=()=>{const b=BREATHS[breathSel];const w={name:'Breathwork · '+b.n,mode:'daily',blocks:[],repeat:1,repeatRest:0,prep:0,daily:'breath'};
+    launch(w,[{kind:'breath',dur:breathLen,label:'BREATHE',stretch:{n:b.n,i:b.i},breath:b.b}]);stage.classList.add('daily');if(cfg.stretch.music!==false)music.start();};}
+function renderDaily(){renderBreath();const h=$('#homeDaily'),c=$('#dailyCard');if(h)h.innerHTML=dailyCardHtml(true);
+  if(c){c.innerHTML=`<h2 style="margin-top:4px">This week</h2>`+weekStripHtml()+dailyCardHtml(false,selectedDay||new Date());
+    c.querySelectorAll('[data-wd]').forEach(b=>b.onclick=()=>{selectedDay=seedToDate(+b.dataset.wd);renderDaily();});}
+  $$('[data-daily]').forEach(b=>b.onclick=()=>startDaily(b.dataset.daily,b.dataset.date?seedToDate(+b.dataset.date):null));}
+function startDaily(kind,date){
+  const d=buildDaily(kind,date);
+  const w={name:`Daily mobility · ${d.theme.n} (${kind==='short'?'Short':'Regular'})`,mode:'daily',blocks:[],repeat:1,repeatRest:0,prep:0,daily:kind,day:dateSeed(d.date)};
+  launch(w,d.segs);stage.classList.add('daily');
+  if(cfg.stretch.music!==false)music.start();
+}
+
 /* ================= audio / haptics / voice ================= */
 let actx;
 function audio(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback';}catch{}
@@ -761,6 +968,13 @@ function tone(freq,dur,type){
     g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.start(t);o.stop(t+dur+.02);}catch{}
 }
 const beep=(f,d)=>tone(f,d);
+/* Soft hand-drum hit for mobility sessions: a pitched thump with a short skin transient. */
+function drum(strength=1){if(!settings.sound)return;try{const a=audio(),t=a.currentTime,v=settings.volume/10*0.9*strength;
+  const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(48,t+0.35);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+0.008);g.gain.exponentialRampToValueAtTime(0.0001,t+0.9);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+1);
+  const n=a.createBufferSource();const len=a.sampleRate*0.06,b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);n.buffer=b;
+  const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1800;const ng=a.createGain();ng.gain.value=v*0.25;n.connect(lp);lp.connect(ng);ng.connect(a.destination);n.start(t);}catch{}}
+const calm=()=>run&&(run.w.mode==='daily'||run.w.mode==='stretch');
 function buzz(ms){if(settings.vibrate&&navigator.vibrate)try{navigator.vibrate(ms);}catch{}}
 let voices=[];function loadVoices(){try{voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));}catch{}}
 if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=()=>{loadVoices();if($('#settings').classList.contains('active'))renderVoiceList();};}
@@ -771,10 +985,29 @@ function pickVoice(){
   const score=v=>(/premium/i.test(v.name)?6:/enhanced|natural|neural/i.test(v.name)?4:0)+(FEMALE.test(v.name)?3:0)+(/en-US|en_US/i.test(v.lang)?1:0)+(v.localService?0.5:0)+(/siri/i.test(v.name)?2:0);
   return voices.slice().sort((a,b)=>score(b)-score(a))[0];
 }
-function say(text,force){if(!(settings.voice||force)||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}u.rate={slow:0.85,normal:1.0,fast:1.15}[settings.voiceRate]||1.0;u.pitch=1.0;u.volume=settings.volume/10;speechSynthesis.speak(u);}catch{}}
-const cueTick=()=>{beep(660,.12);buzz(60);};
+/* Pre-recorded neural voice clips (voice/manifest.json). Falls back to the phone's speech engine when a clip is missing. */
+const clips={map:null,voice:'',loaded:false,queue:[],playing:false,base:new URL('voice/',location.href).href};
+fetch(clips.base+'manifest.json').then(r=>r.ok?r.json():null).then(m=>{if(m){clips.all=m.voices||{[m.voice]:m.clips};applyClipVoice();}clips.loaded=true;}).catch(()=>{clips.loaded=true;});
+function applyClipVoice(){if(!clips.all)return;const names=Object.keys(clips.all);clips.voice=names.includes(settings.clipVoice)?settings.clipVoice:names[0];clips.map=clips.all[clips.voice];}
+const normPhrase=t=>String(t).toLowerCase().replace(/·/g,',').replace(/\s+/g,' ').trim().replace(/\.$/,'');
+function clipFor(text){if(!clips.map)return null;const f=clips.map[normPhrase(text)];return f?clips.base+f:null;}
+let clipEl=null;
+function playClips(urls){return new Promise(res=>{if(!clipEl){clipEl=new Audio();clipEl.preload='auto';clipEl.setAttribute('playsinline','');}
+  const el=clipEl;let i=0;el.volume=Math.min(1,settings.volume/10);
+  const next=()=>{if(i>=urls.length||!settings.voice&&!urls.force){el.onended=null;res();return;}el.src=urls[i++];el.onended=next;el.onerror=next;el.play().catch(()=>next());};
+  el.onended=null;el.pause();next();});}
+function sayParts(parts,force){if(!(settings.voice||force))return;const urls=[];for(const p of parts){const u=clipFor(p);if(!u){return speakTts(parts.join(' '),force);}urls.push(u);}
+  try{speechSynthesis.cancel();}catch{}playClips(urls);}
+function say(text,force){if(!(settings.voice||force))return;
+  /* split "A. B. C" into sentences so a compound cue can be assembled from clips */
+  const parts=String(text).split(/(?<=\.)\s+/).map(x=>x.trim()).filter(Boolean);
+  if(clips.map&&parts.length&&parts.every(p=>clipFor(p)))return sayParts(parts,force);
+  if(clips.map&&clipFor(text))return sayParts([text],force);
+  speakTts(text,force);}
+function speakTts(text,force){if(!(settings.voice||force)||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}u.rate={slow:0.85,normal:1.0,fast:1.15}[settings.voiceRate]||1.0;u.pitch=1.0;u.volume=settings.volume/10;speechSynthesis.speak(u);}catch{}}
+const cueTick=()=>{if(calm())return;beep(660,.12);buzz(60);};
 const cueGo=()=>{beep(1320,settings.beepStyle==='horn'?.8:.35);buzz([120,60,120]);};
-const cueEnd=()=>{beep(1320,.2);setTimeout(()=>beep(1320,.2),250);setTimeout(()=>beep(1760,.6),500);buzz([200,100,200,100,400]);};
+const cueEnd=()=>{if(calm()){drum(1);setTimeout(()=>drum(0.7),450);setTimeout(()=>drum(0.5),900);return;}beep(1320,.2);setTimeout(()=>beep(1320,.2),250);setTimeout(()=>beep(1760,.6),500);buzz([200,100,200,100,400]);};
 
 /* ================= ambient music (synthesised, no files) ================= */
 const SCENES={piano:'Piano garden',bowls:'Singing bowls',ocean:'Ocean',rain:'Rainfall',strings:'Warm strings'};
@@ -894,7 +1127,7 @@ function launch(w,segs,name){
   $('#wodText').textContent=settings.wod;
   stage.classList.toggle('tv',false);
   enterSegment(0);keepAwake(true);soundCheck();go('timer');cancelAnimationFrame(raf);loop();clearInterval(bgTick);bgTick=setInterval(()=>{if(document.visibilityState!=='visible'){paint();if(actx&&actx.state!=='running'&&run&&!run.paused)actx.resume().catch(()=>{});}},250);autoTv();
-  if(w.mode!=='stretch')music.stop();
+  if(w.mode!=='stretch'&&w.mode!=='daily')music.stop();
 }
 const seg=()=>run.segs[run.i];const now=()=>performance.now();
 const segElapsed=()=>((run.paused?run.pauseAt:now())-run.segStart)/1000;
@@ -903,20 +1136,22 @@ function enterSegment(i,startAt){
   if(i>0&&run.segs[0].kind==='prep'&&run.prepDone==null)run.prepDone=totalElapsed();
   run.i=i;run.segStart=run.paused?run.pauseAt:(startAt??now());run.lastTick=-1;run.said={};
   const s=seg();
-  stage.className='tstage '+(s.kind==='prep'?'prep':s.kind==='work'?'work':s.kind==='stretch'?'stretch':'rest')+(stage.classList.contains('tv')?' tv':'')+(run.paused?' paused':'');
+  stage.className='tstage '+(s.kind==='prep'?'prep':s.kind==='work'?'work':(s.kind==='stretch'||s.kind==='breath')?'stretch':'rest')+(stage.classList.contains('tv')?' tv':'')+(run.paused?' paused':'')+(run.w.mode==='daily'?' daily':'');
+  bigEl.classList.toggle('breathing',s.kind==='breath');let br=$('#breathEl');if(!br){br=document.createElement('div');br.id='breathEl';br.className='breath';bigEl.after(br);}br.style.display=s.kind==='breath'?'flex':'none';run.breathPhase=null;
   phaseEl.textContent=s.label;
   if(s.kind==='work'){cueGo();const last=s.round&&s.round===s.rounds&&(!s.sets||s.set===s.sets);
-    if(settings.voiceLast&&last&&s.rounds>1)say('Last round');else if(s.round)say(`Round ${s.round}`);else say('Go');}
-  else if(s.kind==='rest'||s.kind==='setrest'){beep(440,.3);say(s.kind==='setrest'?'Set complete. Rest':'Rest');}
-  else if(s.kind==='stretch'){beep(660,.25);say(s.stretch.n.replace(/\((left|right)\)/,', $1 side'));}
-  else if(s.kind==='prep'){say('Get ready');}
+    if(settings.voiceLast&&last&&s.rounds>1)say('Last round.');else if(s.round)say(`Round ${s.round}.`);else say('Go.');}
+  else if(s.kind==='rest'||s.kind==='setrest'){if(calm())drum(0.6);else beep(440,.3);if(s.stretch){if(s.sameSide)say('Find the other side.');else if(s.next)sayParts(['Next up.',s.next.n.replace(/\s*[·(]\s*(left|right)\)?$/i,'')+'.']);}else say(s.kind==='setrest'?'Set complete. Rest.':'Rest.');}
+  else if(s.kind==='stretch'){drum(1);const m=s.stretch.n.match(/^(.*?)(?:\s*[·(]\s*(left|right)\)?)?$/i);const parts=[m[1].trim()+'.'];if(m[2])parts.push(m[2][0].toUpperCase()+m[2].slice(1).toLowerCase()+' side.');if(!/right/i.test(s.stretch.n))parts.push(s.stretch.i);sayParts(parts);}
+  else if(s.kind==='breath'){drum(0.8);sayParts([s.label==='RECOVER'?'Recover.':s.label==='SETTLE IN'?'Settle in.':'Breathe.',s.stretch.n+'.',s.stretch.i]);}
+  else if(s.kind==='prep'){if(calm())drum(0.6);say('Get ready.');}
   repsBox.style.display=s.reps&&settings.counter?'flex':'none';
   $('#repLbl').textContent=(s.countUp)?'LAPS':'ROUNDS';
   finishBtn.style.display=s.finishable?'':'none';
-  const canSkip=s.kind==='prep'||s.kind==='stretch'||((s.kind==='rest'||s.kind==='setrest')&&settings.skipRest)||(s.kind==='work'&&run.w.mode!=='stopwatch');
+  const canSkip=s.kind==='prep'||s.kind==='stretch'||s.kind==='breath'||((s.kind==='rest'||s.kind==='setrest')&&settings.skipRest)||(s.kind==='work'&&run.w.mode!=='stopwatch');
   skipBtn.style.display=canSkip?'':'none';
   if(s.stretch){stretchEl.style.display='';stretchEl.innerHTML=`<b>${esc(s.stretch.n)}</b>${esc(s.stretch.i)}`;}else{stretchEl.style.display='none';}
-  nextEl.textContent=s.kind==='stretch'&&s.next?`NEXT: ${s.next.n.toUpperCase()}`:(s.kind==='stretch'?'LAST STRETCH':'');
+  nextEl.textContent=s.kind==='stretch'&&s.next?`NEXT: ${s.next.n.toUpperCase()}`:(s.kind==='stretch'?'LAST HOLD':'');
   const total=run.segs.filter(x=>x.kind!=='prep').length;
   blockEl.textContent=s.blocks>1?`${s.bname} · block ${s.block} of ${s.blocks}${s.reps_>1?` · round ${s.rep}/${s.reps_}`:''}`:(s.reps_>1&&s.kind!=='prep'?`Round ${s.rep} of ${s.reps_}`:'');
   paintRounds();paint();
@@ -941,18 +1176,26 @@ function paint(){
     bigEl.textContent=s.kind==='prep'?String(shown):s.countUp?fmtLong(Math.floor(e)):fmt(shown);
     subEl.textContent=s.countUp?`cap ${fmt(s.dur)} · ${fmt(shown)} left`:'';
     bar.style.width=(e/s.dur*100).toFixed(2)+'%';
+    if(s.kind==='breath'&&s.breath){const b=s.breath,cyc=(b.in||4)+(b.hold||0)+(b.out||6)+(b.hold2||0),t=e%cyc;let ph,txt;
+      if(t<b.in){ph='in';txt='Inhale';}else if(t<b.in+(b.hold||0)){ph='hold';txt='Hold';}else if(t<b.in+(b.hold||0)+b.out){ph='out';txt='Exhale';}else{ph='hold2';txt='Hold';}
+      const br=$('#breathEl');if(br&&run.breathPhase!==ph){run.breathPhase=ph;br.textContent=txt;br.style.transitionDuration=(ph==='in'?b.in:ph==='out'?b.out:0.3)+'s';br.classList.toggle('in',ph==='in'||ph==='hold');if(!run.paused&&e>2.5)say(txt+'.');}
+      subEl.textContent=fmt(shown)+' left';}
+    if(s.kind==='stretch'&&s.dur>=45&&!run.paused){const f=e/s.dur;const slot=f>=0.72?2:f>=0.38?1:0;
+      if(slot&&run.cueSlot!==run.i*10+slot){run.cueSlot=run.i*10+slot;const rng=seededRng((s.cueSeed||run.i*7919)+slot);
+        const pools=[CUES.generic,...(s.tags||[]).map(t=>CUES[t]).filter(Boolean)];const pool=pools[Math.floor(rng()*pools.length)];say(pool[Math.floor(rng()*pool.length)]);}
+      if(shown===10&&run.lastTick!==10)say('Ten seconds. Ease out slowly.');}
     if(shown!==run.lastTick&&!run.paused){
       run.lastTick=shown;
-      if(shown<=3&&shown>=1){cueTick();stage.classList.remove('flash');void stage.offsetWidth;stage.classList.add('flash');}
+      if(shown<=3&&shown>=1&&!calm()){cueTick();stage.classList.remove('flash');void stage.offsetWidth;stage.classList.add('flash');}
       if(s.kind==='work'){
-        if(settings.voiceTen&&shown===10&&s.dur>15)say('10 seconds');
-        if(settings.voiceMin&&shown===60&&s.dur>90)say('One minute left');
-        if(settings.voiceHalf&&s.dur>=60&&shown===Math.floor(s.dur/2)&&!run.said.half){run.said.half=1;beep(880,.1);say('Halfway');}
-        else if(s.dur>=120&&shown%60===0&&shown!==s.dur)beep(880,.1);
+        if(settings.voiceTen&&shown===10&&s.dur>15)say('Ten seconds.');
+        if(settings.voiceMin&&shown===60&&s.dur>90)say('One minute left.');
+        if(settings.voiceHalf&&s.dur>=60&&shown===Math.floor(s.dur/2)&&!run.said.half){run.said.half=1;beep(880,.1);say('Halfway.');}
+        else if(s.dur>=120&&shown%60===0&&shown!==s.dur&&!calm())beep(880,.1);
       }
     }
   }else{bigEl.textContent=fmtLong(Math.floor(e));subEl.textContent='no time cap';bar.style.width='0%';}
-  if(settings.reminder>0&&!run.paused&&s.kind==='work'){const m=Math.floor(te/settings.reminder);if(m>run.lastReminder){run.lastReminder=m;beep(990,.1);say(`${Math.round(m*settings.reminder/60)} minutes`);}}
+  if(settings.reminder>0&&!run.paused&&s.kind==='work'){const m=Math.floor(te/settings.reminder);if(m>run.lastReminder){run.lastReminder=m;beep(990,.1);const mm=Math.round(m*settings.reminder/60);say(`${mm} minute${mm===1?'':'s'}.`);}}
   bigEl.classList.toggle('small',bigEl.textContent.length>5);
 }
 function nextSegment(startAt){if(run.i+1<run.segs.length){enterSegment(run.i+1,startAt);if(startAt!=null&&run&&seg().dur>0&&segElapsed()>=seg().dur)nextSegment(run.segStart+seg().dur*1000);}else finishWorkout(false);}
@@ -985,20 +1228,20 @@ let lastEntry=null;
 function finishWorkout(early){
   const total=totalElapsed(),s=seg();
   const workTime=s.countUp?segElapsed():Math.max(0,total-(run.prepDone||0));
-  const rec={id:uid(),date:Date.now(),mode:run.w.mode,name:run.name,plan:workoutSummary(run.w),w:run.w,time:Math.round(workTime),total:Math.round(total),reps:run.reps,early,
-    rounds:s.rounds?(early?s.round:s.rounds):null,notes:''};
-  cueEnd();say(run.w.mode==='stretch'?'Cool-down complete':early?'Finished':'Time');
+  const rec={id:uid(),date:Date.now(),mode:run.w.mode,name:run.name,plan:workoutSummary(run.w),w:run.w,day:run.w.day,time:Math.round(workTime),total:Math.round(total),reps:run.reps,early,
+    rounds:(run.w.mode==='daily'||run.w.mode==='stretch')?run.segs.filter(x=>x.kind==='stretch').length:(s.rounds?(early?s.round:s.rounds):null),notes:''};
+  cueEnd();say(run.w.mode==='daily'?'Session complete. Nice work.':run.w.mode==='stretch'?'Cool-down complete.':early?'Finished.':'Time.');
   stopRun();stage.className='tstage done';
   history.unshift(rec);history=history.slice(0,2000);save('wod.history',history);lastEntry=rec;
-  $('#doneTitle').textContent=rec.mode==='stretch'?'Cool-down complete':'Workout complete';
+  $('#doneTitle').textContent=rec.mode==='daily'?'Session complete':rec.mode==='stretch'?'Cool-down complete':'Workout complete';
   $('#doneTime').textContent=fmtLong(rec.time);$('#doneMode').textContent=rec.plan;
   const rows=[['Mode',rec.name],['Working time',fmtLong(rec.time)],['Total incl. countdown',fmtLong(rec.total)]];
   if(rec.rounds&&rec.mode!=='stretch')rows.push(['Rounds completed',rec.rounds]);
-  if(rec.mode==='stretch')rows.push(['Stretches',rec.rounds]);
+  if(rec.mode==='stretch'||rec.mode==='daily')rows.push(['Holds',rec.rounds]);
   if(rec.mode==='amrap')rows.push(['Rounds / reps logged',rec.reps]);
   if(rec.mode==='fortime'||rec.mode==='stopwatch'){rows.push(['Laps',rec.reps]);rows.push(['Result',early?'Finished under cap':'Time cap reached']);}
   $('#doneStats').innerHTML=rows.map(([a,b])=>`<div class="stat"><span>${a}</span><span>${b}</span></div>`).join('');
-  $('#doneNotes').value='';$('#doneCooldown').style.display=rec.mode==='stretch'?'none':'';
+  $('#doneNotes').value='';$('#doneCooldown').style.display=(rec.mode==='stretch'||rec.mode==='daily')?'none':'';
   renderRecent();go('done');
 }
 $('#doneNotes').oninput=()=>{if(lastEntry){lastEntry.notes=$('#doneNotes').value;save('wod.history',history);}};
@@ -1079,7 +1322,7 @@ $('#clearHist').onclick=async()=>{if(await ask('Delete the whole workout log?',{
 
 /* ================= settings ================= */
 function renderVoiceList(){const sel=$('#voiceSel');if(!sel)return;loadVoices();const auto=pickVoice();
-  $('#voiceCount').textContent=voices.length?`${voices.length} English voices found on this device`:'No voices reported yet. Tap Refresh, or Test once and then Refresh.';
+  $('#voiceCount').textContent=(clips.map?`Studio voice clips active (${Object.keys(clips.map).length} phrases). The phone voice below is only a fallback. `:'')+(voices.length?`${voices.length} English voices found on this device`:'No voices reported yet. Tap Refresh, or Test once and then Refresh.');
   sel.innerHTML=`<option value="">Automatic${auto?' ('+auto.name+')':''}</option>`+voices.map(v=>`<option value="${esc(v.name)}" ${settings.voiceName===v.name?'selected':''}>${esc(v.name)} · ${v.lang}</option>`).join('');
   sel.onchange=()=>{settings.voiceName=sel.value;save('wod.settings',settings);say('Get ready. Three, two, one, go.',true);};}
 function renderSettings(){
@@ -1091,12 +1334,12 @@ function renderSettings(){
     t.onclick=()=>{settings[t.dataset.set]=!settings[t.dataset.set];save('wod.settings',settings);t.classList.toggle('on');
       if(t.dataset.set==='sound'&&settings.sound)beep(880,.1);if(t.dataset.set==='voice'&&settings.voice)say('Voice on',true);};});
   bindSteppers('#settings',k=>settings[k],(k,v)=>{settings[k]=v;save('wod.settings',settings);if(k==='musicVol'){music.setVol(v);if(!music.nodes)music.preview();}else beep(880,.08);});
-  bindSegs('#settings',k=>settings[k],(k,v)=>{settings[k]=v;save('wod.settings',settings);if(k==='beepStyle')cueGo();if(k==='theme')applyTheme();if(k==='voiceRate')say('Get ready. Round one. Rest.',true);});
+  bindSegs('#settings',k=>settings[k],(k,v)=>{settings[k]=v;save('wod.settings',settings);if(k==='beepStyle')cueGo();if(k==='theme')applyTheme();if(k==='voiceRate')say('Get ready. Round one. Rest.',true);if(k==='clipVoice'){applyClipVoice();say('Settle in. Let the shoulders drop away from the ears.',true);}});
   for(const [id,key] of [['#setBox','box'],['#setCoach','coach'],['#setWod','wod']]){const el=$(id);el.value=settings[key]||'';el.oninput=()=>{settings[key]=el.value;save('wod.settings',settings);};}
 }
 
 /* ================= boot ================= */
-renderPresets();renderRecent();go('home');
+renderPresets();renderRecent();renderDaily();go('home');
 document.addEventListener('pointerdown',function warm(){document.removeEventListener('pointerdown',warm);loadVoices();setTimeout(loadVoices,1000);},{once:true});
 if('serviceWorker' in navigator&&location.protocol!=='file:'){(async()=>{try{const mine=new URL('./',location.href).href;let killed=false;
   for(const r of await navigator.serviceWorker.getRegistrations()){if(r.scope!==mine){await r.unregister();killed=true;}}
