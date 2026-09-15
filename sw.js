@@ -1,4 +1,4 @@
-const CACHE = 'wod-timer-v17';
+const CACHE = 'wod-timer-v18';
 const VOICE = 'wod-timer-voice';
 const FILES = ['./', './index.html', './manifest.json', './icon.svg'];
 self.addEventListener('install', e => {

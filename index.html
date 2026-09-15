@@ -76,22 +76,22 @@ h2 button{font-size:13px;color:var(--blue);letter-spacing:0;text-transform:none}
 :root[data-theme="dark"]{--pill-amrap:#d99a45;--pill-fortime:#5a8ad6;--pill-emom:#9f74c9;--pill-tabata:#58ab92;--pill-mix:#8a8c93;--tab:#0b0f14;--tabline:transparent}
 #home{padding-top:calc(var(--safe-t) + 8px);padding-bottom:calc(var(--safe-b) + 78px);overflow:hidden}
 .hometop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.brand{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-weight:700;font-size:clamp(28px,4.4vh,36px);letter-spacing:2px;line-height:1;text-transform:uppercase}
+.brand{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-weight:700;font-size:clamp(24px,3.6vh,30px);letter-spacing:2px;line-height:1;text-transform:uppercase}
 .brand em{font-style:normal;color:var(--accent)}
 .brandsub{font-size:13px;color:var(--muted);margin-top:5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .brandsub b{color:var(--text);font-weight:600}
 .streak{background:#ff5a1f1f;color:var(--accent);border-radius:10px;padding:2px 8px;font-weight:700;font-size:12px}
-.modes{flex:1;display:flex;flex-direction:column;gap:10px;min-height:0}
-.mode{flex:1;min-height:60px;max-height:104px;border-radius:999px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  color:var(--pill-text);padding:8px 64px;text-align:center;transition:transform .08s;border:0}
+.modes{flex:1;display:flex;flex-direction:column;gap:8px;min-height:0}
+.mode{flex:1;min-height:52px;max-height:82px;border-radius:999px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--pill-text);padding:6px 56px;text-align:center;transition:transform .08s;border:0;overflow:hidden}
 .mode:active{transform:scale(.97)}
-.mode b{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-weight:700;font-size:clamp(24px,4vh,34px);letter-spacing:1px;text-transform:uppercase;line-height:1.05}
-.mode span{font-size:clamp(12px,1.9vh,15px);line-height:1.25;margin-top:3px;opacity:.9}
-.mode::after{content:"→";position:absolute;right:38px;top:50%;transform:translateY(-50%);font-size:24px;opacity:.7}
+.mode b{font-family:Oswald,"Arial Narrow",Impact,sans-serif;font-weight:700;font-size:clamp(20px,3.1vh,27px);letter-spacing:1px;text-transform:uppercase;line-height:1.05}
+.mode span{font-size:clamp(11px,1.5vh,13px);line-height:1.2;margin-top:2px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mode::after{content:"→";position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:20px;opacity:.7}
 .mode.amrap{background:var(--pill-amrap)}.mode.fortime{background:var(--pill-fortime)}.mode.emom{background:var(--pill-emom)}
 .mode.tabata{background:var(--pill-tabata)}.mode.mix{background:var(--pill-mix)}
-.homelinks{text-align:center;padding:10px 0 0;flex-shrink:0}
-.cool{color:var(--blue);font-size:clamp(17px,2.4vh,20px);font-weight:600;display:inline-flex;align-items:center;gap:10px;padding:6px 10px}
+.homelinks{text-align:center;padding:6px 0 0;flex-shrink:0}
+.cool{color:var(--blue);font-size:clamp(15px,2vh,18px);font-weight:600;display:inline-flex;align-items:center;gap:10px;padding:6px 10px}
 .small-links{margin-top:2px;font-size:13px;color:var(--muted)}
 .small-links button{color:var(--muted);padding:6px 8px;font-size:13px}
 .tabbar{position:fixed;left:0;right:0;bottom:0;margin-bottom:0;box-shadow:0 40px 0 40px var(--tab);display:none;background:var(--tab);border-top:1px solid var(--tabline);padding:8px 0 calc(var(--safe-b) + 6px);z-index:5}
@@ -181,8 +181,10 @@ h2 button{font-size:13px;color:var(--blue);letter-spacing:0;text-transform:none}
 .daily .btns button.primary{background:#14b8a6;color:#08211f}
 .daily .btns small{display:block;font-weight:500;font-size:11px;opacity:.8}
 .homedaily{padding:8px 0 0;flex-shrink:0}
-.homedaily .daily{margin:0 0 6px;padding:10px 14px;gap:6px}
-.homedaily .daily .t{font-size:19px}
+.homedaily .daily{margin:0 0 4px;padding:9px 12px;gap:5px}
+.homedaily .daily .t{font-size:17px}
+.homedaily .week{margin:0;gap:4px}.homedaily .wd{padding:4px 0;background:#ffffff12;border-radius:9px;font-size:10px;color:#b7c3d0}.homedaily .wd b{font-size:12px;color:#fff}.homedaily .wd.on{background:#14b8a6}.homedaily .wd.on b{color:#08211f}
+.homedaily .daily .btns button{padding:8px 6px;font-size:13px}
 .tstage.daily{background:#0f1216;color:#f2f5f8}
 .tstage.daily .phase{color:#14b8a6}.tstage.daily .bar{background:#14b8a6}.tstage.daily .sub,.tstage.daily .stretchinfo,.tstage.daily .nextup,.tstage.daily .total,.tstage.daily .exit,.tstage.daily .hint{color:#9fb0c3}
 .tstage.daily .stretchinfo b{color:#fff}.tstage.daily .controls button{background:#ffffff16;color:#fff}.tstage.daily .controls button.primary{background:#14b8a6;color:#08211f}
@@ -233,7 +235,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
     <button class="mode fortime" data-mode="fortime"><b>For Time</b><span>Finish the work. Beat the clock.</span></button>
     <button class="mode emom" data-mode="emom"><b>EMOM</b><span>Every minute, on the minute</span></button>
     <button class="mode tabata" data-mode="tabata"><b>Tabata</b><span>Work. Rest. Repeat.</span></button>
-    <button class="mode mix" data-mode="mix"><b>MIX</b><span>Build a workout with multiple formats</span></button>
+    <button class="mode mix" data-mode="mix"><b>MIX</b><span>Chain formats into one workout</span></button>
   </div>
   <div class="homedaily" id="homeDaily"></div>
   <div class="homelinks">
@@ -943,7 +945,7 @@ function renderBreath(){const bc=$('#breathChips');if(!bc)return;bc.innerHTML=BR
   $$('#breathLen button').forEach(b=>{b.classList.toggle('on',+b.dataset.v===breathLen);b.onclick=()=>{breathLen=+b.dataset.v;renderBreath();};});
   $('#breathStart').onclick=()=>{const b=BREATHS[breathSel];const w={name:'Breathwork · '+b.n,mode:'daily',blocks:[],repeat:1,repeatRest:0,prep:0,daily:'breath'};
     launch(w,[{kind:'breath',dur:breathLen,label:'BREATHE',stretch:{n:b.n,i:b.i},breath:b.b}]);stage.classList.add('daily');if(cfg.stretch.music!==false)music.start();};}
-function renderDaily(){renderBreath();const h=$('#homeDaily'),c=$('#dailyCard');if(h)h.innerHTML=dailyCardHtml(true);
+function renderDaily(){renderBreath();const h=$('#homeDaily'),c=$('#dailyCard');if(h){h.innerHTML=dailyCardHtml(true,selectedDay||new Date()).replace('<div class="btns">',weekStripHtml()+'<div class="btns">');h.querySelectorAll('[data-wd]').forEach(b=>b.onclick=()=>{selectedDay=seedToDate(+b.dataset.wd);renderDaily();});}
   if(c){c.innerHTML=`<h2 style="margin-top:4px">This week</h2>`+weekStripHtml()+dailyCardHtml(false,selectedDay||new Date());
     c.querySelectorAll('[data-wd]').forEach(b=>b.onclick=()=>{selectedDay=seedToDate(+b.dataset.wd);renderDaily();});}
   $$('[data-daily]').forEach(b=>b.onclick=()=>startDaily(b.dataset.daily,b.dataset.date?seedToDate(+b.dataset.date):null));}
